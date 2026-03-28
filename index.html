@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nations with Aidan</title>
+    
+    <meta property="og:title" content="Nations with Aidan 🌍">
+    <meta property="og:description" content="Can you beat Aidan? Play the geography battle game now!">
+    <meta property="og:image" content="./assets/aidan.png">
+    <meta property="og:type" content="website">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="deck-counts">
+            You: <span id="playerCount">0</span> | Aidan: <span id="cpuCount">0</span>
+        </div>
+        <h1 id="turnIndicator">Your Turn!</h1>
+        <button class="help-btn" onclick="toggleHelp()">GAME RULES</button>
+    </header>
+
+    <div class="game-board" id="gameBoard">
+        <div id="statusOverlay"><h1 id="statusText">Ready!</h1></div>
+        <div id="nextRoundOverlay"><button id="nextBtn">Next Round ➡</button></div>
+
+        <div class="cpu-area">
+            <div id="aidanAvatar"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar" title="Aidan"></div>
+            <div class="card-container" id="cpuCardContainer">
+                <div class="card" id="cpuCard">
+                    <div class="card-back">?</div>
+                    <div class="card-front"><div class="card-content" id="cpuCardContent"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="player-area">
+            <div class="card-container" id="playerCardContainer">
+                <div class="card flipped" id="playerCard">
+                    <div class="card-back">?</div>
+                    <div class="card-front"><div class="card-content" id="playerCardContent"></div></div>
+                </div>
+            </div>
+            
+            <button id="challengeBtn" class="challenge-trigger-btn" onclick="onChallengeClick()" style="display:none;">
+                CHALLENGE AIDAN! ⚔️
+            </button>
+        </div>
+    </div>
+
+    <div id="endGameScreen" class="end-game-overlay"></div>
+
+    <div id="challengeModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="color:#e91e63" id="challengeTitle">Challenge!</h2>
+            <img id="challengeImg" alt="Challenge Image" title="Challenge" style="height:120px; display:none; margin: 0 auto 15px; border-radius: 10px;">
+            <p id="challengeQuestion" style="font-size:1.3rem; margin: 15px 0; font-weight:bold;"></p>
+            <div id="challengeOptions" class="challenge-options"></div>
+            <div id="challengeFeedback" style="margin-top:15px;"></div>
+        </div>
+    </div>
+
+    <div id="helpModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>How to Play</h2>
+            <div class="start-instructions">
+                <p>It plays just like the card game "War" or "Top Trumps," but with geography:</p>
+                <ul>
+                    <li><strong>Face Off:</strong> You get a country card. Aidan holds a card face-down.</li>
+                    <li><strong>Pick Your Stat:</strong> Look at your stats and tap the one you think will beat Aidan.</li>
+                    <li><strong>The Reveal:</strong> If your number is higher, you win the round.</li>
+                    <li><strong>Winning Streak:</strong> If you win, you keep your turn!</li>
+                    <li><strong>Risk It:</strong> Don't like your stats? Tap <strong>"CHALLENGE AIDAN"</strong>! Aidan will pick a quiz. Get it right to steal his card!</li>
+                </ul>
+            </div>
+            <button onclick="toggleHelp()" style="padding:10px 30px; background:#4caf50; color:white; border:none; border-radius:50px; font-size:1.2rem; cursor:pointer; font-weight:bold;">CLOSE</button>
+        </div>
+    </div>
+
+    <div id="startScreen" class="modal-overlay" style="display:flex;">
+        <div class="modal-content">
+            <h1>Nations with Aidan 🌍</h1>
+            <p>Can you beat the master?</p>
+            
+            <div class="settings-container">
+                <div class="setting-box">
+                    <label for="difficultySelect">Difficulty:</label>
+                    <select id="difficultySelect" title="Select Game Difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="setting-box">
+                    <label for="deckSizeSelect">Deck Size:</label>
+                    <select id="deckSizeSelect" title="Select Deck Size">
+                        <option value="20" selected>20 Cards</option>
+                        <option value="40">40 Cards</option>
+                    </select>
+                </div>
+                <div class="setting-box">
+                    <label for="voiceSelect">Aidan's Energy:</label>
+                    <select id="voiceSelect" title="Select Aidan's Voice Type"><option value="default">Enthusiastic</option></select>
+                </div>
+            </div>
+
+            <div class="start-instructions">
+                <strong>Instructions:</strong>
+                <ul>
+                    <li>👆 Pick your best Stat (Green).</li>
+                    <li>👀 Compare with Aidan.</li>
+                    <li>🏆 Highest number wins!</li>
+                </ul>
+            </div>
+            <button id="startBtn" style="font-size:1.5rem; padding:15px 40px; cursor:pointer; background:#4caf50; color:white; border:none; border-radius:10px; width:100%;">START GAME</button>
+        </div>
+    </div>
+
+    <script src="./js/CountriesData.js"></script>
+    <script src="./js/GameState.js"></script>
+    <script src="./js/AudioManager.js"></script>
+    <script>
+
+        let game;
+        const audioManager = new AudioManager();
+        let isAnimating = false;
+        let isAdvancing = false;
+        let pendingWinner = null;
+        let availableVoices = [];
+
+        const aidanWinsPhrases = ["win"]; 
+        const aidanLosesPhrases = ["lose"];
+        const aidanThinking = ["thinking"];
+        const backgrounds = [
+            'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?q=80&w=2940&auto=format&fit=crop', 
+            'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2940&auto=format&fit=crop', 
+            'https://images.unsplash.com/photo-1587595431973-160d0d94add1?q=80&w=2940&auto=format&fit=crop', 
+            'https://images.unsplash.com/photo-1579033461380-adb47c3eb938?q=80&w=2940&auto=format&fit=crop', 
+            'https://images.unsplash.com/photo-1496442226666-8d4a0e62e6e9?q=80&w=2940&auto=format&fit=crop'
+        ];
+
+        window.toggleHelp = () => document.getElementById('helpModal').classList.toggle('active');
+
+        // --- FIXED VOICE LOGIC ---
+        function loadVoices() {
+            const populate = () => { 
+                availableVoices = window.speechSynthesis.getVoices(); 
+                populateVoiceList(); 
+            };
+            populate();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = populate;
+        }
+
+        function populateVoiceList() {
+            const select = document.getElementById('voiceSelect');
+            // If already populated, stop (unless it's just the default)
+            if (select.options.length > 1) return;
+
+            select.innerHTML = ''; 
+            
+            // Define strict criteria for our 6 archetypes
+            // WE ONLY add them if we find a GOOD match. No blind guessing.
+            const targets = [
+                { label: 'Male - US', lang: 'en-US', mustHave: ['David', 'Mark', 'Male', 'Guy'], avoid: ['Zira', 'Female', 'Eva'] },
+                { label: 'Female - US', lang: 'en-US', mustHave: ['Zira', 'Google', 'Female', 'Samantha', 'Eva'], avoid: ['David', 'Mark', 'Male'] },
+                { label: 'Male - UK', lang: 'en-GB', mustHave: ['George', 'Male', 'Daniel', 'Arthur'], avoid: ['Female', 'Hazel', 'Susan'] },
+                { label: 'Female - UK', lang: 'en-GB', mustHave: ['Female', 'Hazel', 'Susan', 'Martha'], avoid: ['Male', 'George', 'Daniel'] },
+                { label: 'Male - Australia', lang: 'en-AU', mustHave: ['James', 'Male', 'Russell'], avoid: ['Female', 'Karen', 'Catherine'] },
+                { label: 'Female - Australia', lang: 'en-AU', mustHave: ['Female', 'Karen', 'Catherine', 'Lisa'], avoid: ['Male', 'James', 'Russell'] },
+                { label: 'Male - India', lang: 'en-IN', mustHave: ['Male', 'Rishi', 'Ravi'], avoid: ['Female', 'Heera'] },
+                { label: 'Female - India', lang: 'en-IN', mustHave: ['Female', 'Heera', 'Priya'], avoid: ['Male', 'Rishi'] }
+            ];
+
+            targets.forEach(target => {
+                // Find a voice that matches language AND contains a 'mustHave' keyword
+                // AND does NOT contain an 'avoid' keyword
+                let match = availableVoices.find(v => {
+                    const name = v.name || "";
+                    const langMatch = v.lang === target.lang;
+                    const hasKeyword = target.mustHave.some(k => name.includes(k));
+                    const hasBadKeyword = target.avoid.some(k => name.includes(k));
+                    return langMatch && hasKeyword && !hasBadKeyword;
+                });
+
+                if (match) {
+                    const exists = Array.from(select.options).some(opt => opt.value === match.name);
+                    if (!exists) { 
+                        const option = document.createElement('option'); 
+                        option.textContent = target.label; 
+                        option.value = match.name;
+                        select.appendChild(option); 
+                    }
+                }
+            });
+
+            // Always ensure at least default exists
+            if (select.options.length === 0) {
+                const option = document.createElement('option'); 
+                option.textContent = "Default Robot"; 
+                option.value = "default";
+                select.appendChild(option);
+            }
+        }
+
+        function speakAidan(category) {
+            audioManager.playRandom(category);
+        }
+
+        function setAidanMood(mood) {
+            // No emoji change needed, Aidan stays charismatic
+        }
+
+        function init() {
+            try {
+                loadVoices();
+                const data = COUNTRIES_DATA;
+                game = new GameState(data);
+                game.onCpuPick = (stat) => {
+                    showStatus("Aidan is choosing...");
+                    setAidanMood('thinking');
+                    document.getElementById('challengeBtn').style.display = 'none';
+                    // speakAidan('thinking'); // No thinking sound pool yet
+                    setTimeout(() => handleTurn(stat), 1500);
+                };
+                document.getElementById('startBtn').onclick = startGame;
+                document.getElementById('nextBtn').onclick = advanceRound;
+            } catch (error) { console.error(error); alert("Error loading data."); }
+        }
+
+        function startGame() {
+            const randBg = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+            document.body.style.backgroundImage = `url('${randBg}')`;
+            const diff = document.getElementById('difficultySelect').value;
+            const size = parseInt(document.getElementById('deckSizeSelect').value);
+            game.setDifficulty(diff); game.setDeckSize(size);
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('endGameScreen').style.display = 'none'; // Hide end screen
+            speakAidan("intro");
+            game.startGame();
+            renderBoard();
+        }
+
+        function renderBoard() {
+            document.getElementById('playerCount').innerText = game.playerDeck.length;
+            document.getElementById('cpuCount').innerText = game.cpuDeck.length;
+            renderCardContent(document.getElementById('playerCardContent'), game.playerCurrentCard, true);
+            renderCardContent(document.getElementById('cpuCardContent'), game.cpuCurrentCard, false);
+
+            const cpuCard = document.getElementById('cpuCard');
+            cpuCard.style.transition = 'none'; cpuCard.classList.remove('flipped'); void cpuCard.offsetHeight; cpuCard.style.transition = '';
+            document.getElementById('playerCard').classList.add('flipped');
+            document.getElementById('cpuCardContainer').classList.remove('revealed');
+            const flyClasses = ['anim-fly-player', 'anim-fly-cpu'];
+            document.getElementById('playerCardContainer').parentElement.classList.remove(...flyClasses);
+            document.getElementById('cpuCardContainer').parentElement.classList.remove(...flyClasses);
+
+            const ind = document.getElementById('turnIndicator');
+            const btn = document.getElementById('challengeBtn');
+            
+            if(game.currentTurn === 'player' && game.state === 'waiting_for_input') {
+                ind.innerText = "Pick a Stat!"; setAidanMood('neutral');
+                btn.style.display = 'block'; 
+            } else {
+                ind.innerText = "Aidan's Turn...";
+                btn.style.display = 'none'; 
+            }
+
+            if (game.state === 'game_over') {
+                showEndGameScreen();
+            }
+        }
+
+        function showEndGameScreen() {
+            const userWon = game.playerDeck.length > 0;
+            const screen = document.getElementById('endGameScreen');
+            screen.style.display = 'flex';
+            screen.innerHTML = ''; 
+
+            if (userWon) {
+                speakAidan("game_over_win");
+                const winAudio = new Audio('./assets/audio/winner.mp3');
+                winAudio.play().catch(e => console.warn(e));
+                screen.innerHTML = `
+                    <div class="golden-ticket">
+                        <div class="ticket-header">ADMIT ONE</div>
+                        <div class="ticket-title">ROUND THE WORLD</div>
+                        <div class="ticket-sub">WINNER: PLAYER 1</div>
+                        <div>⭐⭐⭐⭐⭐</div>
+                    </div>
+                    <button class="end-btn" onclick="location.reload()">Play Again</button>
+                `;
+                for(let i=0; i<30; i++) {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random()*100 + 'vw';
+                    c.style.animationDuration = (Math.random()*2 + 2) + 's';
+                    c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                    screen.appendChild(c);
+                }
+            } else {
+                speakAidan("game_over_lose");
+                screen.innerHTML = `
+                    <div class="game-over-stamp">PASSPORT EXPIRED</div>
+                    <button class="end-btn" onclick="location.reload()">Try Again</button>
+                `;
+            }
+        }
+
+        function renderCardContent(container, cardData, isPlayer) {
+            if (!cardData) return;
+            const fmt = (n) => (n !== undefined && n !== null) ? n.toLocaleString() : 'N/A';
+            const makeRow = (k, l, u) => `
+                <div class="stat-row" ${isPlayer ? `onclick="window.onStatClick('${k}')"` : `id="cpu-stat-${k}"`}>
+                    <span class="stat-label">${l}</span>
+                    <span class="stat-value">${k === 'GDP' ? '$' : ''}${fmt(cardData[k])}${u}</span>
+                </div>`;
+            
+            container.innerHTML = `
+                <h3 class="country-name">${cardData.Name}</h3>
+                <img src="${cardData.FlagImageURL}" class="flag-img" alt="${cardData.Name} Flag">
+                <div class="stats-list" id="${isPlayer ? 'pStats' : 'cStats'}">
+                    ${makeRow('Area','Area','mi²')}
+                    ${makeRow('Population','Pop.','')}
+                    ${makeRow('GDP', 'GDP', ' B')}
+                    ${makeRow('HighestPoint','Elev.','ft')}
+                    ${makeRow('NeighboringCountries','Neighbors','')}
+                </div>`;
+        }
+
+        window.onStatClick = (stat) => {
+            if (game.currentTurn === 'player' && !isAnimating) handleTurn(stat);
+        };
+
+        window.onChallengeClick = () => {
+            if (isAnimating || game.currentTurn !== 'player') return;
+            document.getElementById('challengeBtn').style.display = 'none';
+
+            const result = game.triggerChallenge();
+            // speakAidan("thinking"); // No thinking sound pool yet
+            setAidanMood('thinking');
+            showChallengeModal(result);
+        };
+
+        function handleTurn(statName) {
+            if (isAnimating) return;
+            isAnimating = true;
+            document.getElementById('challengeBtn').style.display = 'none'; 
+
+            const result = game.evaluateTurn(statName);
+            showStatus(`${result.winner.toUpperCase()} WINS!`);
+            document.getElementById('cpuCard').classList.add('flipped');
+            document.getElementById('cpuCardContainer').classList.add('revealed');
+            highlightStats(result.statName, result.winner);
+
+            if (result.winner === 'cpu') {
+                setAidanMood('happy');
+                speakAidan("win");
+            } else if (result.winner === 'player') {
+                setAidanMood('grumpy');
+                speakAidan("lose");
+            } else {
+                // speakAidan("A draw? Boring."); // No draw sound for now
+            }
+            pendingWinner = result.winner;
+            document.getElementById('nextRoundOverlay').style.display = 'block';
+        }
+
+        function advanceRound() {
+            if (isAdvancing) return;
+            isAdvancing = true;
+            document.getElementById('nextRoundOverlay').style.display = 'none';
+            hideStatus();
+            setAidanMood('neutral');
+            const anim = pendingWinner === 'player' ? 'anim-fly-player' : 'anim-fly-cpu';
+            document.getElementById('playerCardContainer').parentElement.classList.add(anim);
+            document.getElementById('cpuCardContainer').parentElement.classList.add(anim);
+            setTimeout(() => {
+                game.resolveRound();
+                renderBoard();
+                isAnimating = false;
+                isAdvancing = false;
+            }, 800);
+        }
+
+        function showChallengeModal(result) {
+            const modal = document.getElementById('challengeModal');
+            document.getElementById('challengeFeedback').innerHTML = ''; 
+            document.getElementById('challengeQuestion').innerText = result.question;
+            const img = document.getElementById('challengeImg');
+            
+            if (result.headerImage && result.type !== 'reverse_flag') { 
+                img.src = result.headerImage; img.style.display = 'block'; 
+            } else { 
+                img.style.display = 'none'; 
+            }
+
+            const optsDiv = document.getElementById('challengeOptions');
+            optsDiv.innerHTML = '';
+            
+            result.options.forEach(opt => {
+                const btn = document.createElement('button');
+                
+                if (opt.image) {
+                    btn.className = 'option-img-btn';
+                    const optImg = document.createElement('img');
+                    optImg.src = opt.image;
+                    btn.appendChild(optImg);
+                    btn.onclick = () => handleChallengeAnswer(opt.image === result.correctAnswer, btn, result.correctAnswer);
+                } else {
+                    btn.className = 'option-btn';
+                    btn.innerText = opt.text;
+                    btn.onclick = () => handleChallengeAnswer(opt.text === result.correctAnswer, btn, result.correctAnswer);
+                }
+                optsDiv.appendChild(btn);
+            });
+            modal.classList.add('active');
+        }
+
+        function handleChallengeAnswer(won, btnElement, correctAnswerValue) {
+            const optionsDiv = document.getElementById('challengeOptions');
+            const feedbackDiv = document.getElementById('challengeFeedback');
+            const modal = document.getElementById('challengeModal');
+            
+            const allBtns = optionsDiv.querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            btnElement.style.background = won ? '#4caf50' : '#f44336';
+            if(won) btnElement.style.borderColor = '#2e7d32';
+
+            if (!won) {
+                allBtns.forEach(b => {
+                    if (b.innerText === correctAnswerValue || (b.querySelector('img') && b.querySelector('img').src === correctAnswerValue)) {
+                        b.style.background = '#4caf50';
+                        b.style.transform = 'scale(1.05)';
+                        b.style.border = '3px solid #2e7d32';
+                    }
+                });
+                
+                let label = correctAnswerValue;
+                if(label.toString().startsWith('http')) label = "The flag highlighted in GREEN";
+
+                feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#d32f2f; font-weight:bold; margin-bottom:10px;">WRONG! <br>Correct Answer: <span style="color:#2e7d32">${label}</span></p>`;
+                speakAidan("win");
+            } else {
+                feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#2e7d32; font-weight:bold; margin-bottom:10px;">CORRECT! SYSTEM HACKED!</p>`;
+                speakAidan("lose");
+            }
+
+            const contBtn = document.createElement('button');
+            contBtn.innerText = "CONTINUE ➡";
+            contBtn.style.padding = "10px 30px";
+            contBtn.style.background = "#0288d1";
+            contBtn.style.color = "white";
+            contBtn.style.border = "none";
+            contBtn.style.borderRadius = "20px";
+            contBtn.style.fontSize = "1.2rem";
+            contBtn.style.cursor = "pointer";
+            contBtn.style.fontWeight = "bold";
+            
+            contBtn.onclick = () => {
+                modal.classList.remove('active');
+                game.resolveChallenge(won);
+                
+                pendingWinner = won ? 'player' : 'cpu';
+                
+                if (won) { 
+                    setAidanMood('grumpy'); showStatus("CORRECT! CARD STOLEN!"); 
+                } else { 
+                    setAidanMood('happy'); showStatus("WRONG!"); 
+                }
+                document.getElementById('nextRoundOverlay').style.display = 'block';
+            };
+            
+            feedbackDiv.appendChild(contBtn);
+        }
+
+        function highlightStats(key, winner) {
+            const map = { 'Area': 0, 'Population': 1, 'GDP': 2, 'HighestPoint': 3, 'NeighboringCountries': 4 };
+            const idx = map[key];
+            const pStats = document.querySelectorAll('#pStats .stat-row');
+            const cStats = document.querySelectorAll('#cStats .stat-row');
+            if (pStats[idx] && cStats[idx]) {
+                pStats[idx].classList.add(winner === 'player' ? 'winner-stat' : 'loser-stat');
+                cStats[idx].classList.add(winner === 'cpu' ? 'winner-stat' : 'loser-stat');
+            }
+        }
+
+        function showStatus(msg) {
+            const el = document.getElementById('statusOverlay');
+            document.getElementById('statusText').innerText = msg;
+            el.classList.add('active');
+        }
+        function hideStatus() { document.getElementById('statusOverlay').classList.remove('active'); }
+
+        init();
+    </script>
+</body>
+</html>
