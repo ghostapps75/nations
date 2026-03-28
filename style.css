@@ -21,6 +21,9 @@ body {
     font-family: var(--font-main);
     background-color: var(--primary-navy);
     background-image: radial-gradient(circle at center, #001f3f 0%, #000c19 100%);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     color: var(--text-color);
     height: 100vh; width: 100vw;
     overflow: hidden; 
