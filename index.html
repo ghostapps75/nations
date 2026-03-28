@@ -101,10 +101,6 @@
                         <option value="30">30 Points</option>
                     </select>
                 </div>
-                <div class="setting-box">
-                    <label for="voiceSelect">Aidan's Energy:</label>
-                    <select id="voiceSelect" title="Select Aidan's Voice Type"><option value="default">Enthusiastic</option></select>
-                </div>
             </div>
 
             <div class="start-instructions">
@@ -129,7 +125,6 @@
         let isAnimating = false;
         let isAdvancing = false;
         let pendingWinner = null;
-        let availableVoices = [];
 
         const aidanWinsPhrases = ["win"]; 
         const aidanLosesPhrases = ["lose"];
@@ -143,67 +138,6 @@
 
         window.toggleHelp = () => document.getElementById('helpModal').classList.toggle('active');
 
-        // --- FIXED VOICE LOGIC ---
-        function loadVoices() {
-            const populate = () => { 
-                availableVoices = window.speechSynthesis.getVoices(); 
-                populateVoiceList(); 
-            };
-            populate();
-            if (window.speechSynthesis.onvoiceschanged !== undefined) window.speechSynthesis.onvoiceschanged = populate;
-        }
-
-        function populateVoiceList() {
-            const select = document.getElementById('voiceSelect');
-            // If already populated, stop (unless it's just the default)
-            if (select.options.length > 1) return;
-
-            select.innerHTML = ''; 
-            
-            // Define strict criteria for our 6 archetypes
-            // WE ONLY add them if we find a GOOD match. No blind guessing.
-            const targets = [
-                { label: 'Male - US', lang: 'en-US', mustHave: ['David', 'Mark', 'Male', 'Guy'], avoid: ['Zira', 'Female', 'Eva'] },
-                { label: 'Female - US', lang: 'en-US', mustHave: ['Zira', 'Google', 'Female', 'Samantha', 'Eva'], avoid: ['David', 'Mark', 'Male'] },
-                { label: 'Male - UK', lang: 'en-GB', mustHave: ['George', 'Male', 'Daniel', 'Arthur'], avoid: ['Female', 'Hazel', 'Susan'] },
-                { label: 'Female - UK', lang: 'en-GB', mustHave: ['Female', 'Hazel', 'Susan', 'Martha'], avoid: ['Male', 'George', 'Daniel'] },
-                { label: 'Male - Australia', lang: 'en-AU', mustHave: ['James', 'Male', 'Russell'], avoid: ['Female', 'Karen', 'Catherine'] },
-                { label: 'Female - Australia', lang: 'en-AU', mustHave: ['Female', 'Karen', 'Catherine', 'Lisa'], avoid: ['Male', 'James', 'Russell'] },
-                { label: 'Male - India', lang: 'en-IN', mustHave: ['Male', 'Rishi', 'Ravi'], avoid: ['Female', 'Heera'] },
-                { label: 'Female - India', lang: 'en-IN', mustHave: ['Female', 'Heera', 'Priya'], avoid: ['Male', 'Rishi'] }
-            ];
-
-            targets.forEach(target => {
-                // Find a voice that matches language AND contains a 'mustHave' keyword
-                // AND does NOT contain an 'avoid' keyword
-                let match = availableVoices.find(v => {
-                    const name = v.name || "";
-                    const langMatch = v.lang === target.lang;
-                    const hasKeyword = target.mustHave.some(k => name.includes(k));
-                    const hasBadKeyword = target.avoid.some(k => name.includes(k));
-                    return langMatch && hasKeyword && !hasBadKeyword;
-                });
-
-                if (match) {
-                    const exists = Array.from(select.options).some(opt => opt.value === match.name);
-                    if (!exists) { 
-                        const option = document.createElement('option'); 
-                        option.textContent = target.label; 
-                        option.value = match.name;
-                        select.appendChild(option); 
-                    }
-                }
-            });
-
-            // Always ensure at least default exists
-            if (select.options.length === 0) {
-                const option = document.createElement('option'); 
-                option.textContent = "Default Robot"; 
-                option.value = "default";
-                select.appendChild(option);
-            }
-        }
-
         function speakAidan(category) {
             audioManager.playRandom(category);
         }
@@ -214,7 +148,6 @@
 
         function init() {
             try {
-                loadVoices();
                 const data = COUNTRIES_DATA;
                 game = new GameState(data);
                 game.onCpuPick = (stat) => {
