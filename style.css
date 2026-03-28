@@ -195,11 +195,28 @@ header h1 {
 
 /* --- MOBILE LAYOUT --- */
 @media (max-width: 768px) {
-    .game-board { flex-direction: column; justify-content: flex-start; gap: 30px; padding: 10px; padding-top: 40px; padding-bottom: 100px; }
-    .cpu-area, .player-area { width: 280px; height: 350px; background: none; border: none; box-shadow: none; }
-    #aidanAvatar { left: auto; right: -20px; top: -40px; width: 90px; height: 90px; }
-    .stat-row { padding: 6px 10px; font-size: 0.8rem; }
-    .challenge-trigger-btn { bottom: -60px; }
+    header { padding: 10px 5px; }
+    header h1 { font-size: 1.4rem; }
+    .deck-counts { font-size: 1rem; margin-bottom: 2px; }
+
+    .game-board { flex-direction: column; justify-content: flex-start; gap: 15px; padding: 5px; padding-top: 25px; padding-bottom: 80px; }
+    
+    .cpu-area { 
+        width: 280px; height: 350px; background: none; border: none; box-shadow: none; 
+        transform: scale(0.60); 
+        transform-origin: top center; 
+        margin-bottom: -130px; /* Offset the 40% height reduction */
+    }
+
+    .player-area { 
+        width: 310px; height: 380px; background: none; border: none; box-shadow: none; 
+    }
+
+    #aidanAvatar { left: auto; right: -40px; top: -60px; width: 140px; height: 140px; }
+    
+    .stat-row { padding: 8px 12px; font-size: 0.95rem; }
+    
+    .challenge-trigger-btn { bottom: -65px; font-size: 1.1rem; padding: 12px 20px; width: 80%; }
 }
 
 /* --- OVERLAYS --- */
