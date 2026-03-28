@@ -122,13 +122,11 @@ class GameState {
 
         if (winner === 'player') {
             this.playerScore++;
-            this.currentTurn = 'player';
         } else if (winner === 'cpu') {
             this.cpuScore++;
-            this.currentTurn = 'cpu';
-        } else {
-            this.currentTurn = (this.currentTurn === 'player') ? 'cpu' : 'player';
         }
+        
+        this.currentTurn = (this.currentTurn === 'player') ? 'cpu' : 'player';
 
         if (this.drawPile.length < 2) {
             this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
