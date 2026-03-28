@@ -15,7 +15,7 @@
 <body>
     <header>
         <div class="deck-counts">
-            You: <span id="playerCount">0</span> | Aidan: <span id="cpuCount">0</span>
+            Your Points: <span id="playerCount">0</span> | Aidan's Points: <span id="cpuCount">0</span>
         </div>
         <h1 id="turnIndicator">Your Turn!</h1>
         <button class="help-btn" onclick="toggleHelp()">GAME RULES</button>
@@ -69,9 +69,10 @@
                 <ul>
                     <li><strong>Face Off:</strong> You get a country card. Aidan holds a card face-down.</li>
                     <li><strong>Pick Your Stat:</strong> Look at your stats and tap the one you think will beat Aidan.</li>
-                    <li><strong>The Reveal:</strong> If your number is higher, you win the round.</li>
+                    <li><strong>The Reveal:</strong> If your number is higher, you score a point and retain the card!</li>
                     <li><strong>Winning Streak:</strong> If you win, you keep your turn!</li>
-                    <li><strong>Risk It:</strong> Don't like your stats? Tap <strong>"CHALLENGE AIDAN"</strong>! Aidan will pick a quiz. Get it right to steal his card!</li>
+                    <li><strong>Replenish:</strong> Win or lose, you always draw a new card to replace the one you played, so you never run out!</li>
+                    <li><strong>Risk It:</strong> Don't like your stats? Tap <strong>"CHALLENGE AIDAN"</strong>! Aidan will pick a quiz. Get it right to steal the point!</li>
                 </ul>
             </div>
             <button onclick="toggleHelp()" style="padding:10px 30px; background:#4caf50; color:white; border:none; border-radius:50px; font-size:1.2rem; cursor:pointer; font-weight:bold;">CLOSE</button>
@@ -93,10 +94,11 @@
                     </select>
                 </div>
                 <div class="setting-box">
-                    <label for="deckSizeSelect">Deck Size:</label>
-                    <select id="deckSizeSelect" title="Select Deck Size">
-                        <option value="20" selected>20 Cards</option>
-                        <option value="40">40 Cards</option>
+                    <label for="deckSizeSelect">Points to Win:</label>
+                    <select id="deckSizeSelect" title="Select Points to Win">
+                        <option value="10" selected>10 Points</option>
+                        <option value="20">20 Points</option>
+                        <option value="30">30 Points</option>
                     </select>
                 </div>
                 <div class="setting-box">
@@ -241,8 +243,8 @@
         }
 
         function renderBoard() {
-            document.getElementById('playerCount').innerText = game.playerDeck.length;
-            document.getElementById('cpuCount').innerText = game.cpuDeck.length;
+            document.getElementById('playerCount').innerText = game.playerScore;
+            document.getElementById('cpuCount').innerText = game.cpuScore;
             renderCardContent(document.getElementById('playerCardContent'), game.playerCurrentCard, true);
             renderCardContent(document.getElementById('cpuCardContent'), game.cpuCurrentCard, false);
 
@@ -271,7 +273,7 @@
         }
 
         function showEndGameScreen() {
-            const userWon = game.playerDeck.length > 0;
+            const userWon = game.playerScore >= game.TARGET_SCORE;
             const screen = document.getElementById('endGameScreen');
             screen.style.display = 'flex';
             screen.innerHTML = ''; 

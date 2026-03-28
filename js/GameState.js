@@ -3,11 +3,13 @@ class GameState {
         this.allCards = countriesData;
         this.playerDeck = [];
         this.cpuDeck = [];
-        this.holdingPool = [];
+        this.drawPile = [];
+        this.playerScore = 0;
+        this.cpuScore = 0;
         this.currentTurn = 'player';
         this.state = 'waiting_for_start';
         this.difficulty = 'medium';
-        this.GAME_DECK_SIZE = 20; 
+        this.TARGET_SCORE = 10;
 
         this.maxStats = {
             GDP: 25462,
@@ -19,17 +21,14 @@ class GameState {
     }
 
     setDifficulty(level) { this.difficulty = level; }
-    setDeckSize(size) { this.GAME_DECK_SIZE = size; }
+    setDeckSize(size) { this.TARGET_SCORE = size; }
 
     startGame() {
-        const fullShuffle = [...this.allCards].sort(() => Math.random() - 0.5);
-        const deckSize = Math.min(this.GAME_DECK_SIZE, fullShuffle.length);
-        const gameDeck = fullShuffle.slice(0, deckSize);
-
-        const mid = Math.floor(gameDeck.length / 2);
-        this.playerDeck = gameDeck.slice(0, mid);
-        this.cpuDeck = gameDeck.slice(mid);
-        this.holdingPool = [];
+        this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
+        this.playerDeck = [this.drawPile.shift()];
+        this.cpuDeck = [this.drawPile.shift()];
+        this.playerScore = 0;
+        this.cpuScore = 0;
         this.currentTurn = 'player';
         this.state = 'waiting_for_input';
     }
@@ -116,32 +115,33 @@ class GameState {
 
     resolveRound() {
         if (!this.roundResult) return;
-        const { winner, playerCard, cpuCard } = this.roundResult;
+        const { winner } = this.roundResult;
 
         this.playerDeck.shift();
         this.cpuDeck.shift();
 
-        const trick = [playerCard, cpuCard, ...this.holdingPool];
-
-        if (winner === 'draw') {
-            this.holdingPool = trick;
-            this.currentTurn = (this.currentTurn === 'player') ? 'cpu' : 'player';
+        if (winner === 'player') {
+            this.playerScore++;
+            this.currentTurn = 'player';
+        } else if (winner === 'cpu') {
+            this.cpuScore++;
+            this.currentTurn = 'cpu';
         } else {
-            if (winner === 'player') {
-                this.playerDeck.push(...trick);
-                this.currentTurn = 'player';
-            } else {
-                this.cpuDeck.push(...trick);
-                this.currentTurn = 'cpu';
-            }
-            this.holdingPool = [];
+            this.currentTurn = (this.currentTurn === 'player') ? 'cpu' : 'player';
         }
+
+        if (this.drawPile.length < 2) {
+            this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
+        }
+        
+        this.playerDeck.push(this.drawPile.shift());
+        this.cpuDeck.push(this.drawPile.shift());
 
         this.checkWinCondition();
     }
 
     checkWinCondition() {
-        if (this.playerDeck.length === 0 || this.cpuDeck.length === 0) {
+        if (this.playerScore >= this.TARGET_SCORE || this.cpuScore >= this.TARGET_SCORE) {
             this.state = 'game_over';
         } else {
             this.state = 'waiting_for_input';
