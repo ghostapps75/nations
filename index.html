@@ -208,11 +208,17 @@
             document.getElementById('playerCard').classList.add('flipped');
             document.getElementById('cpuCardContainer').classList.remove('revealed');
             const flyClasses = ['anim-fly-player', 'anim-fly-cpu'];
-            document.getElementById('playerCardContainer').parentElement.classList.remove(...flyClasses);
-            document.getElementById('cpuCardContainer').parentElement.classList.remove(...flyClasses);
+            const pArea = document.getElementById('playerCardContainer').parentElement;
+            const cArea = document.getElementById('cpuCardContainer').parentElement;
+            
+            pArea.classList.remove(...flyClasses);
+            cArea.classList.remove(...flyClasses);
 
-            document.getElementById('playerCardContainer').parentElement.classList.add('anim-fly-in');
-            document.getElementById('cpuCardContainer').parentElement.classList.add('anim-fly-in');
+            // Force WebKit reflow to prevent 1-frame animation tearing jump
+            void pArea.offsetWidth;
+
+            pArea.classList.add('anim-fly-in');
+            cArea.classList.add('anim-fly-in');
 
             const ind = document.getElementById('turnIndicator');
             
@@ -329,12 +335,18 @@
             hideStatus();
             setAidanMood('neutral');
 
-            document.getElementById('playerCardContainer').parentElement.classList.remove('anim-fly-in');
-            document.getElementById('cpuCardContainer').parentElement.classList.remove('anim-fly-in');
+            const pArea = document.getElementById('playerCardContainer').parentElement;
+            const cArea = document.getElementById('cpuCardContainer').parentElement;
+            
+            pArea.classList.remove('anim-fly-in');
+            cArea.classList.remove('anim-fly-in');
+
+            // Force WebKit reflow to prevent 1-frame animation tearing jump
+            void pArea.offsetWidth;
 
             const anim = pendingWinner === 'player' ? 'anim-fly-player' : 'anim-fly-cpu';
-            document.getElementById('playerCardContainer').parentElement.classList.add(anim);
-            document.getElementById('cpuCardContainer').parentElement.classList.add(anim);
+            pArea.classList.add(anim);
+            cArea.classList.add(anim);
 
             if (game.drawPile.length > 1) {
                 new Image().src = game.drawPile[0].FlagImageURL;
