@@ -47,24 +47,10 @@
                     <div class="card-front"><div class="card-content" id="playerCardContent"></div></div>
                 </div>
             </div>
-            
-            <button id="challengeBtn" class="challenge-trigger-btn" onclick="onChallengeClick()" style="display:none;">
-                CHALLENGE AIDAN! ⚔️
-            </button>
         </div>
     </div>
 
     <div id="endGameScreen" class="end-game-overlay"></div>
-
-    <div id="challengeModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 style="color:#e91e63" id="challengeTitle">Challenge!</h2>
-            <img id="challengeImg" alt="Challenge Image" title="Challenge" style="height:120px; display:none; margin: 0 auto 15px; border-radius: 10px;">
-            <p id="challengeQuestion" style="font-size:1.3rem; margin: 15px 0; font-weight:bold;"></p>
-            <div id="challengeOptions" class="challenge-options"></div>
-            <div id="challengeFeedback" style="margin-top:15px;"></div>
-        </div>
-    </div>
 
     <div id="helpModal" class="modal-overlay">
         <div class="modal-content">
@@ -76,7 +62,6 @@
                     <li><strong>Pick Your Stat:</strong> Look at your stats and tap the one you think will beat Aidan.</li>
                     <li><strong>The Reveal:</strong> If your number is higher, you score a point and retain the card!</li>
                     <li><strong>Replenish:</strong> Win or lose, you always draw a new card to replace the one you played, so you never run out!</li>
-                    <li><strong>Risk It:</strong> Don't like your stats? Tap <strong>"CHALLENGE AIDAN"</strong>! Aidan will pick a quiz. Get it right to steal the point!</li>
                 </ul>
             </div>
             <button onclick="toggleHelp()" style="padding:10px 30px; background:#4caf50; color:white; border:none; border-radius:50px; font-size:1.2rem; cursor:pointer; font-weight:bold;">CLOSE</button>
@@ -165,8 +150,6 @@
                 game.onCpuPick = (stat) => {
                     showStatus("Aidan is choosing...");
                     setAidanMood('thinking');
-                    document.getElementById('challengeBtn').style.display = 'none';
-                    // speakAidan('thinking'); // No thinking sound pool yet
                     setTimeout(() => handleTurn(stat), 1500);
                 };
                 document.getElementById('startBtn').onclick = startGame;
@@ -229,18 +212,14 @@
             document.getElementById('cpuCardContainer').parentElement.classList.remove(...flyClasses);
 
             const ind = document.getElementById('turnIndicator');
-            const btn = document.getElementById('challengeBtn');
             
             if (game.state === 'game_over') {
                 ind.innerText = "Game Over!";
                 setAidanMood('neutral');
-                btn.style.display = 'none';
             } else if(game.currentTurn === 'player' && game.state === 'waiting_for_input') {
                 ind.innerText = "Pick a Stat!"; setAidanMood('neutral');
-                btn.style.display = 'block'; 
             } else {
                 ind.innerText = "Aidan's Turn...";
-                btn.style.display = 'none'; 
             }
 
             if (game.state === 'game_over') {
@@ -317,20 +296,9 @@
             if (game.currentTurn === 'player' && !isAnimating && game.state === 'waiting_for_input') handleTurn(stat);
         };
 
-        window.onChallengeClick = () => {
-            if (isAnimating || game.currentTurn !== 'player' || game.state !== 'waiting_for_input') return;
-            document.getElementById('challengeBtn').style.display = 'none';
-
-            const result = game.triggerChallenge();
-            // speakAidan("thinking"); // No thinking sound pool yet
-            setAidanMood('thinking');
-            showChallengeModal(result);
-        };
-
         function handleTurn(statName) {
             if (isAnimating) return;
             isAnimating = true;
-            document.getElementById('challengeBtn').style.display = 'none'; 
 
             const result = game.evaluateTurn(statName);
             showStatus(`${result.winner.toUpperCase()} WINS!`);
@@ -368,97 +336,7 @@
             }, 800);
         }
 
-        function showChallengeModal(result) {
-            const modal = document.getElementById('challengeModal');
-            document.getElementById('challengeFeedback').innerHTML = ''; 
-            document.getElementById('challengeQuestion').innerText = result.question;
-            const img = document.getElementById('challengeImg');
-            
-            if (result.headerImage && result.type !== 'reverse_flag') { 
-                img.src = result.headerImage; img.style.display = 'block'; 
-            } else { 
-                img.style.display = 'none'; 
-            }
 
-            const optsDiv = document.getElementById('challengeOptions');
-            optsDiv.innerHTML = '';
-            
-            result.options.forEach(opt => {
-                const btn = document.createElement('button');
-                
-                if (opt.image) {
-                    btn.className = 'option-img-btn';
-                    const optImg = document.createElement('img');
-                    optImg.src = opt.image;
-                    btn.appendChild(optImg);
-                    btn.onclick = () => handleChallengeAnswer(opt.image === result.correctAnswer, btn, result.correctAnswer);
-                } else {
-                    btn.className = 'option-btn';
-                    btn.innerText = opt.text;
-                    btn.onclick = () => handleChallengeAnswer(opt.text === result.correctAnswer, btn, result.correctAnswer);
-                }
-                optsDiv.appendChild(btn);
-            });
-            modal.classList.add('active');
-        }
-
-        function handleChallengeAnswer(won, btnElement, correctAnswerValue) {
-            const optionsDiv = document.getElementById('challengeOptions');
-            const feedbackDiv = document.getElementById('challengeFeedback');
-            const modal = document.getElementById('challengeModal');
-            
-            const allBtns = optionsDiv.querySelectorAll('button');
-            allBtns.forEach(b => b.disabled = true);
-
-            btnElement.style.background = won ? '#4caf50' : '#f44336';
-            if(won) btnElement.style.borderColor = '#2e7d32';
-
-            if (!won) {
-                allBtns.forEach(b => {
-                    if (b.innerText === correctAnswerValue || (b.querySelector('img') && b.querySelector('img').src === correctAnswerValue)) {
-                        b.style.background = '#4caf50';
-                        b.style.transform = 'scale(1.05)';
-                        b.style.border = '3px solid #2e7d32';
-                    }
-                });
-                
-                let label = correctAnswerValue;
-                if(label.toString().startsWith('http')) label = "The flag highlighted in GREEN";
-
-                feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#d32f2f; font-weight:bold; margin-bottom:10px;">WRONG! <br>Correct Answer: <span style="color:#2e7d32">${label}</span></p>`;
-                speakAidan("win");
-            } else {
-                feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#2e7d32; font-weight:bold; margin-bottom:10px;">CORRECT! SYSTEM HACKED!</p>`;
-                speakAidan("lose");
-            }
-
-            const contBtn = document.createElement('button');
-            contBtn.innerText = "CONTINUE ➡";
-            contBtn.style.padding = "10px 30px";
-            contBtn.style.background = "#0288d1";
-            contBtn.style.color = "white";
-            contBtn.style.border = "none";
-            contBtn.style.borderRadius = "20px";
-            contBtn.style.fontSize = "1.2rem";
-            contBtn.style.cursor = "pointer";
-            contBtn.style.fontWeight = "bold";
-            
-            contBtn.onclick = () => {
-                modal.classList.remove('active');
-                game.resolveChallenge(won);
-                
-                pendingWinner = won ? 'player' : 'cpu';
-                
-                if (won) { 
-                    setAidanMood('grumpy'); showStatus("CORRECT! CARD STOLEN!"); 
-                } else { 
-                    setAidanMood('happy'); showStatus("WRONG!"); 
-                }
-                document.getElementById('nextRoundOverlay').style.display = 'block';
-            };
-            
-            feedbackDiv.appendChild(contBtn);
-        }
 
         function highlightStats(key, winner) {
             const map = { 'Area': 0, 'Population': 1, 'GDP': 2, 'HighestPoint': 3, 'NeighboringCountries': 4 };

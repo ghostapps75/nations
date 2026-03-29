@@ -54,64 +54,7 @@ class GameState {
         return this.roundResult;
     }
 
-    triggerChallenge() {
-        if (this.state !== 'waiting_for_input') return null;
-        this.state = 'waiting_for_challenge_response';
 
-        const playerCard = this.playerDeck[0];
-        const cpuCard = this.cpuDeck[0]; 
-
-        const types = ['flag', 'capital', 'reverse_flag']; 
-        const type = types[Math.floor(Math.random() * types.length)];
-
-        let question = "";
-        let headerImage = null; 
-        let correctAnswer = ""; 
-        let options = []; 
-
-        if (type === 'flag') {
-            question = "Aidan shows a flag. Name the country!";
-            headerImage = cpuCard.FlagImageURL;
-            correctAnswer = cpuCard.Name;
-            const wrongOpts = this.getWrongOptions(cpuCard.Name, 'Name', 3);
-            options = [cpuCard.Name, ...wrongOpts].sort(() => Math.random() - 0.5)
-                        .map(t => ({ text: t, image: null }));
-
-        } else if (type === 'capital') {
-            question = `What is the capital of ${cpuCard.Name}?`;
-            correctAnswer = cpuCard.Capital;
-            const wrongOpts = this.getWrongOptions(cpuCard.Capital, 'Capital', 3);
-            options = [cpuCard.Capital, ...wrongOpts].sort(() => Math.random() - 0.5)
-                        .map(t => ({ text: t, image: null }));
-
-        } else if (type === 'reverse_flag') {
-            question = `Which flag belongs to ${cpuCard.Name}?`;
-            correctAnswer = cpuCard.FlagImageURL;
-            const wrongOpts = this.getWrongOptions(cpuCard.FlagImageURL, 'FlagImageURL', 3);
-            options = [cpuCard.FlagImageURL, ...wrongOpts].sort(() => Math.random() - 0.5)
-                        .map(url => ({ text: null, image: url })); 
-        }
-
-        this.roundResult = {
-            isChallenge: true, type, question, headerImage, options, correctAnswer, playerCard, cpuCard
-        };
-        return this.roundResult;
-    }
-
-    getWrongOptions(correctVal, field, count) {
-        const wrongs = [];
-        while(wrongs.length < count) {
-            const r = this.allCards[Math.floor(Math.random() * this.allCards.length)];
-            const val = r[field];
-            if (val !== correctVal && !wrongs.includes(val)) wrongs.push(val);
-        }
-        return wrongs;
-    }
-
-    resolveChallenge(userWon) {
-        this.roundResult.winner = userWon ? 'player' : 'cpu';
-        return this.roundResult;
-    }
 
     resolveRound() {
         if (!this.roundResult) return;
