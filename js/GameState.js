@@ -60,25 +60,23 @@ class GameState {
         if (!this.roundResult) return;
         const { winner } = this.roundResult;
 
+        this.playerDeck.shift();
+        this.cpuDeck.shift();
+
         if (winner === 'player') {
             this.playerScore++;
-            this.cpuDeck.shift();
-            if (this.drawPile.length < 1) this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
-            this.cpuDeck.push(this.drawPile.shift());
         } else if (winner === 'cpu') {
             this.cpuScore++;
-            this.playerDeck.shift();
-            if (this.drawPile.length < 1) this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
-            this.playerDeck.push(this.drawPile.shift());
-        } else {
-            this.playerDeck.shift();
-            this.cpuDeck.shift();
-            if (this.drawPile.length < 2) this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
-            this.playerDeck.push(this.drawPile.shift());
-            this.cpuDeck.push(this.drawPile.shift());
         }
         
         this.currentTurn = (this.currentTurn === 'player') ? 'cpu' : 'player';
+
+        if (this.drawPile.length < 2) {
+            this.drawPile = [...this.allCards].sort(() => Math.random() - 0.5);
+        }
+        
+        this.playerDeck.push(this.drawPile.shift());
+        this.cpuDeck.push(this.drawPile.shift());
 
         this.checkWinCondition();
     }
