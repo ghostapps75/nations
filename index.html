@@ -36,7 +36,7 @@
         <div id="statusOverlay"><h1 id="statusText">Ready!</h1></div>
         <div id="nextRoundOverlay"><button id="nextBtn">Next Round ➡</button></div>
 
-        <div class="cpu-area">
+        <div class="cpu-area" id="cpuArea">
             <div class="card-container" id="cpuCardContainer">
                 <div class="card" id="cpuCard">
                     <div class="card-back">?</div>
@@ -54,6 +54,7 @@
             </div>
             <button id="challengeBtn" onclick="window.onChallengeClick()" style="display: none;">CHALLENGE AIDAN ⚔️</button>
         </div>
+        <div id="tutorialBubble" class="tutorial-bubble" style="display: none;"></div>
     </div>
 
     <div id="endGameScreen" class="end-game-overlay"></div>
@@ -62,12 +63,12 @@
         <div class="modal-content">
             <h2>How to Play</h2>
             <div class="start-instructions">
-                <p>It plays just like the card game "War" or "Top Trumps," but with geography:</p>
-                <ul>
-                    <li><strong>Face Off:</strong> You get a country card. Aidan holds a card face-down.</li>
-                    <li><strong>Pick Your Stat:</strong> Look at your stats and tap the one you think will beat Aidan.</li>
-                    <li><strong>The Reveal:</strong> If your number is higher, you score a point and win the round!</li>
-                    <li><strong>Replenish:</strong> Win or lose, you always draw a new card to replace the one you played, so you never run out!</li>
+                <p style="margin-bottom: 10px;">Welcome to Nations! The classic card game of "War" combined with global geography stats.</p>
+                <ul style="line-height: 1.6;">
+                    <li><strong>Face Off:</strong> You hold one country card face-up. Aidan holds his face-down.</li>
+                    <li><strong>Pick Your Stat:</strong> On your turn, tap the stat on your card you think can beat Aidan's hidden card!</li>
+                    <li><strong>Alternating Turns:</strong> You and Aidan will take turns choosing the category to compete on, regardless of who wins the previous round!</li>
+                    <li><strong>Challenge Override:</strong> If you draw a terrible card, the Challenge button will glow. Tap it to answer a trivia question and steal the round!</li>
                 </ul>
             </div>
             <button onclick="toggleHelp()" style="padding:10px 30px; background:#4caf50; color:white; border:none; border-radius:50px; font-size:1.2rem; cursor:pointer; font-weight:bold;">CLOSE</button>
@@ -91,22 +92,21 @@
                 <img src="./assets/aidan.png" class="landing-aidan" alt="Aidan">
             </div>
             
-            <div class="landing-right modal-content" style="border-top: none; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
-                <h1 style="font-size: 2.5rem; text-shadow: none;">NATIONS WITH AIDAN</h1>
-                <p style="color: #444; font-size: 1.2rem; font-weight: bold;">Can you beat the master?</p>
+            <div class="landing-right modal-content" style="border-top: none; background: rgba(10, 25, 47, 0.95); box-shadow: 0 20px 50px rgba(0,0,0,0.5); backdrop-filter: blur(15px); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 480px; padding: 40px; border-radius: 20px; border: 2px solid var(--accent-gold);">
+                <h1 style="font-size: 3.5rem; margin-bottom: 25px; line-height: 1.1; text-align: center; color: #ffffff; text-shadow: 0 4px 10px rgba(0,0,0,0.5);">NATIONS<br><span style="font-size: 1.8rem; color: var(--accent-gold); font-weight: normal; letter-spacing: 4px;">WITH AIDAN</span></h1>
                 
-                <div class="settings-container" style="background: none; border: none; padding: 0;">
-                    <div class="setting-box" style="background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee;">
-                        <label for="difficultySelect">Difficulty:</label>
-                        <select id="difficultySelect" title="Select Game Difficulty">
+                <div class="settings-container" style="background: none; border: none; padding: 0; width: 100%; margin-bottom: 30px;">
+                    <div class="setting-box" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);">
+                        <label for="difficultySelect" style="color: #fff; font-weight: normal;">Difficulty:</label>
+                        <select id="difficultySelect" style="background: #333; color: #fff; border: none;">
                             <option value="easy">Easy</option>
                             <option value="medium" selected>Medium</option>
                             <option value="hard">Hard</option>
                         </select>
                     </div>
-                    <div class="setting-box" style="background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee;">
-                        <label for="deckSizeSelect">Points to Win:</label>
-                        <select id="deckSizeSelect" title="Select Points to Win">
+                    <div class="setting-box" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);">
+                        <label for="deckSizeSelect" style="color: #fff; font-weight: normal;">Points to Win:</label>
+                        <select id="deckSizeSelect" style="background: #333; color: #fff; border: none;">
                             <option value="10" selected>10 Points</option>
                             <option value="20">20 Points</option>
                             <option value="30">30 Points</option>
@@ -114,15 +114,10 @@
                     </div>
                 </div>
 
-                <div class="start-instructions" style="background:#fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; border-left: 5px solid var(--accent-gold);">
-                    <strong>How to Play:</strong>
-                    <ul style="color:#555; margin-bottom: 0;">
-                        <li>👆 Pick your highest State value (Green).</li>
-                        <li>👀 Compare with Aidan.</li>
-                        <li>🏆 Highest number wins the trick!</li>
-                    </ul>
+                <div style="display: flex; flex-direction: column; gap: 15px; width: 100%;">
+                    <button id="btnPlayNormal" class="premium-btn primary" style="cursor:pointer; background: var(--accent-gold); border: none; color: var(--primary-navy); padding: 18px; border-radius: 40px; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: all 0.3s;">JUST START</button>
+                    <button id="btnPlayTutorial" class="premium-btn secondary" style="cursor:pointer; background: transparent; border: 2px solid rgba(255,255,255,0.5); color: #fff; padding: 18px; border-radius: 40px; font-weight: 900; font-size: 1.2rem; text-transform: uppercase; transition: all 0.3s;">HOW TO PLAY</button>
                 </div>
-                <button id="startBtn" style="font-size:1.5rem; padding:15px 40px; cursor:pointer; background:var(--primary-navy); color:white; border:none; border-radius:30px; width:100%; box-shadow: 0 10px 20px rgba(0,31,63,0.3); font-weight: bold;">START GAME</button>
             </div>
         </div>
     </div>
@@ -136,6 +131,9 @@
         const audioManager = new AudioManager();
         const winAudioNode = new Audio('./assets/audio/winner.mp3');
         let isAnimating = false;
+        let isTutorialing = false;
+        let tutorialPlayed = false;
+        let tutorialStep = 0;
         let isAdvancing = false;
         let pendingWinner = null;
 
@@ -151,8 +149,8 @@
 
         window.toggleHelp = () => document.getElementById('helpModal').classList.toggle('active');
 
-        function speakAidan(category) {
-            audioManager.playRandom(category);
+        async function speakAidan(category) {
+            return audioManager.playRandom(category);
         }
 
         function setAidanMood(mood) {
@@ -168,7 +166,8 @@
                     setAidanMood('thinking');
                     setTimeout(() => handleTurn(stat), 1500);
                 };
-                document.getElementById('startBtn').onclick = startGame;
+                document.getElementById('btnPlayNormal').onclick = () => { tutorialPlayed = true; startGame(); };
+                document.getElementById('btnPlayTutorial').onclick = () => { tutorialPlayed = false; startGame(); };
                 document.getElementById('nextBtn').onclick = advanceRound;
                 
                 layoutLandingFlags();
@@ -214,7 +213,12 @@
             winAudioNode.pause();
             audioManager.unlock();
             
-            speakAidan("intro");
+            if (tutorialPlayed) {
+                window.currentAudioPromise = speakAidan("intro");
+            } else {
+                window.currentAudioPromise = Promise.resolve();
+            }
+            
             game.startGame();
             renderBoard();
         }
@@ -256,12 +260,21 @@
             
             if(game.currentTurn === 'player' && game.state === 'waiting_for_input') {
                 ind.innerText = "Pick a Stat!"; setAidanMood('neutral');
-                const btn = document.getElementById('challengeBtn');
-                btn.style.display = 'block';
-                if (game.difficulty === 'easy' && game.isPoorCard(game.playerCurrentCard)) {
-                    btn.classList.add('glow-hint');
+                
+                if (!tutorialPlayed) {
+                    if (window.currentAudioPromise) {
+                        window.currentAudioPromise.then(() => { runPlayerTutorial(); });
+                    } else {
+                        runPlayerTutorial();
+                    }
                 } else {
-                    btn.classList.remove('glow-hint');
+                    const btn = document.getElementById('challengeBtn');
+                    btn.style.display = 'block';
+                    if (game.difficulty === 'easy' && game.isPoorCard(game.playerCurrentCard)) {
+                        btn.classList.add('glow-hint');
+                    } else {
+                        btn.classList.remove('glow-hint');
+                    }
                 }
             } else {
                 ind.innerText = "Aidan's Turn...";
@@ -271,12 +284,85 @@
             }
         }
 
-        function showEndGameScreen() {
+        function runPlayerTutorial() {
+            isTutorialing = true;
+            tutorialPlayed = true;
+            tutorialStep = 0;
+            
+            const btn = document.getElementById('challengeBtn');
+            btn.style.display = 'block';
+            
+            document.getElementById('cpuArea').style.display = 'none';
+            
+            const tb = document.getElementById('tutorialBubble');
+            tb.classList.add('solo-tutorial-bubble');
+            tb.innerHTML = '<div class="tutorial-text" id="tutorialMessage"><strong>This is your country card.</strong><br><br>It has 5 categories: Area, Population, GDP/Capita, Elevation, and Neighbors.</div><button class="tutorial-next-btn" id="tutorialNextBtn" onclick="window.advanceTutorial()">NEXT ➡</button>';
+            tb.style.display = 'block';
+
+            const rows = document.getElementById('pStats').querySelectorAll('.stat-row');
+            rows.forEach((row, index) => {
+                row.insertAdjacentHTML('beforeend', `<span class="tutorial-arrow" id="tut-arrow-${index}" style="display:none;">→</span>`);
+            });
+        }
+
+        window.advanceTutorial = () => {
+            const rows = document.getElementById('pStats').querySelectorAll('.stat-row');
+            const tb = document.getElementById('tutorialBubble');
+            const msg = document.getElementById('tutorialMessage');
+            const nxtBtn = document.getElementById('tutorialNextBtn');
+            const chBtn = document.getElementById('challengeBtn');
+
+            tutorialStep++;
+
+            if (tutorialStep === 1) {
+                msg.innerHTML = "<strong>Your opponent has a country card you cannot see.</strong><br><br>You must pick the category on your card that you believe has the best chance of being higher than your opponent's.";
+                nxtBtn.style.display = 'none';
+
+                let delay = 1500;
+                rows.forEach((row, index) => {
+                    setTimeout(() => {
+                        row.classList.add(`tutorial-highlight-${index}`);
+                        const arr = document.getElementById(`tut-arrow-${index}`);
+                        if (arr) arr.style.display = 'inline-block';
+
+                        setTimeout(() => {
+                            row.classList.remove(`tutorial-highlight-${index}`);
+                            if (arr) arr.style.display = 'none';
+                        }, 1200);
+                    }, delay + (index * 1200));
+                });
+                
+                setTimeout(() => window.advanceTutorial(), delay + (rows.length * 1200) + 500);
+
+            } else if (tutorialStep === 2) {
+                rows.forEach((row, index) => {
+                    const arr = document.getElementById(`tut-arrow-${index}`);
+                    if (arr) arr.style.display = 'none';
+                });
+                msg.innerHTML = "<strong>OR...</strong><br>If you don't think any will win, try the challenge!";
+                chBtn.classList.add('glow-hint');
+                
+                nxtBtn.style.display = 'inline-block';
+                nxtBtn.innerText = 'CLICK TO START GAME';
+                nxtBtn.style.background = 'var(--accent-gold)';
+                nxtBtn.style.color = 'var(--primary-navy)';
+            } else if (tutorialStep === 3) {
+                chBtn.classList.remove('glow-hint');
+                isTutorialing = false;
+                document.getElementById('cpuArea').style.display = '';
+                tb.classList.remove('solo-tutorial-bubble');
+                tb.style.display = 'none';
+            }
+        };
+
+        async function showEndGameScreen() {
             const userWon = game.playerScore >= game.TARGET_SCORE;
+            document.getElementById('turnIndicator').style.display = 'none';
+            document.getElementById('challengeBtn').style.display = 'none';
+            
             const screen = document.getElementById('endGameScreen');
             screen.style.display = 'flex';
-            screen.innerHTML = ''; 
-
+            
             if (userWon) {
                 speakAidan("lose");
                 winAudioNode.currentTime = 0;
@@ -299,11 +385,12 @@
                     screen.appendChild(c);
                 }
             } else {
-                speakAidan("win");
                 screen.innerHTML = `
                     <div class="game-over-stamp">PASSPORT EXPIRED</div>
                     <button class="end-btn" onclick="location.reload()">Try Again</button>
                 `;
+                await audioManager.playSFX('lose game');
+                speakAidan("win");
             }
         }
 
@@ -337,11 +424,12 @@
         }
 
         window.onStatClick = (stat) => {
-            if (game.currentTurn === 'player' && !isAnimating && game.state === 'waiting_for_input') handleTurn(stat);
+            if (isTutorialing || isAnimating) return;
+            if (game.currentTurn === 'player' && game.state === 'waiting_for_input') handleTurn(stat);
         };
 
         window.onChallengeClick = () => {
-            if (isAnimating || game.currentTurn !== 'player' || game.state !== 'waiting_for_input') return;
+            if (isTutorialing || isAnimating || game.currentTurn !== 'player' || game.state !== 'waiting_for_input') return;
             document.getElementById('challengeBtn').style.display = 'none';
 
             const result = game.triggerChallenge();
@@ -385,7 +473,7 @@
             modal.classList.add('active');
         }
 
-        function handleChallengeAnswer(won, btnElement, correctAnswerValue) {
+        async function handleChallengeAnswer(won, btnElement, correctAnswerValue) {
             const optionsDiv = document.getElementById('challengeOptions');
             const feedbackDiv = document.getElementById('challengeFeedback');
             const modal = document.getElementById('challengeModal');
@@ -411,9 +499,11 @@
                 if(label.toString().startsWith('http') || label.toString().includes('assets')) label = "The flag highlighted in GREEN";
 
                 feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#d32f2f; font-weight:bold; margin-bottom:10px;">WRONG! <br>Correct Answer: <span style="color:#2e7d32">${label}</span></p>`;
+                await audioManager.playSFX("lose challenge");
                 speakAidan("win");
             } else {
                 feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#2e7d32; font-weight:bold; margin-bottom:10px;">CHALLENGE WON!</p>`;
+                await audioManager.playSFX("win challenge");
                 speakAidan("lose");
             }
 
@@ -436,14 +526,29 @@
                 } else { 
                     setAidanMood('happy'); showStatus("WRONG!"); 
                 }
-                document.getElementById('nextRoundOverlay').style.display = 'block';
+                startTurnCountdown();
             };
             
             feedbackDiv.appendChild(contBtn);
         }
 
-        function handleTurn(statName) {
-            if (isAnimating) return;
+        function startTurnCountdown() {
+            if ((pendingWinner === 'player' && game.playerScore >= game.TARGET_SCORE - 1) || 
+                (pendingWinner === 'cpu' && game.cpuScore >= game.TARGET_SCORE - 1)) {
+                setTimeout(advanceRound, 1500);
+                return;
+            }
+
+            const btn = document.getElementById('nextBtn');
+            let nextTurn = game.currentTurn === 'player' ? 'cpu' : 'player';
+            let turnText = nextTurn === 'player' ? "Your Turn" : "Aidan's Turn";
+            
+            btn.innerText = `CLICK FOR ${turnText.toUpperCase()}`;
+            document.getElementById('nextRoundOverlay').style.display = 'block';
+        }
+
+        async function handleTurn(statName) {
+            if (isAnimating || isTutorialing) return;
             isAnimating = true;
             document.getElementById('challengeBtn').style.display = 'none';
 
@@ -455,15 +560,21 @@
 
             if (result.winner === 'cpu') {
                 setAidanMood('happy');
+                await audioManager.playSFX("lose point");
                 speakAidan("win");
             } else if (result.winner === 'player') {
                 setAidanMood('grumpy');
+                if (game.playerScore >= game.TARGET_SCORE - 1) {
+                    await audioManager.playSFX("winning game");
+                } else {
+                    await audioManager.playSFX("win point");
+                }
                 speakAidan("lose");
             } else {
-                // speakAidan("A draw? Boring."); // No draw sound for now
+                // No draw sound for now
             }
             pendingWinner = result.winner;
-            document.getElementById('nextRoundOverlay').style.display = 'block';
+            startTurnCountdown();
         }
 
         function advanceRound() {
