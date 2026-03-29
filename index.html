@@ -349,9 +349,15 @@
             } else if (tutorialStep === 3) {
                 chBtn.classList.remove('glow-hint');
                 isTutorialing = false;
-                document.getElementById('cpuArea').style.display = '';
+                const cpuArea = document.getElementById('cpuArea');
+                cpuArea.style.display = 'flex';
+                void cpuArea.offsetHeight; // Force WebKit reflow for Safari
                 tb.classList.remove('solo-tutorial-bubble');
                 tb.style.display = 'none';
+                
+                showStatus("Pick a Stat!");
+                setTimeout(hideStatus, 2000);
+                speakAidan("intro");
             }
         };
 
