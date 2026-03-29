@@ -148,7 +148,9 @@ header h1 {
 
 @media (max-width: 900px) {
     .solo-tutorial-bubble {
-        left: 50%; /* Let mobile overrides take over */
+        left: 50% !important; 
+        top: 420px !important; /* Move fully below the scaled player card so stats remain visible */
+        bottom: auto !important;
     }
 }
 
@@ -497,8 +499,9 @@ header h1 {
     .landing-aidan { max-height: 45vh; transform: scale(1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)); }
     
     .landing-right { 
-        background: rgba(255,255,255,0.92) !important; padding: 15px !important; 
-        box-shadow: 0 -10px 30px rgba(0,0,0,0.1); width: 100%; 
+        background: rgba(10, 25, 47, 0.95) !important; padding: 25px !important; 
+        border: 2px solid var(--accent-gold) !important;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.4); width: 100%; 
         border-radius: 20px; z-index: 10; margin-top: -40px; 
     }
     .landing-right h1 { font-size: 1.8rem !important; }
