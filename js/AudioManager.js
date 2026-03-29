@@ -1,49 +1,86 @@
 class AudioManager {
     constructor() {
-        this.basePath = './assets/audio/aidanvoice/';
+        this.basePath = './assets/audio/';
+        this.voiceMode = 'aidan'; // default to aidan
+
         this.pools = {
-            intro: [
-                'choose.a.category.mp3',
-                'mynameisaidan-intro.mp3',
-                'think you can beat me intro.mp3',
-                'up.for.a.challenge.mp3',
-                'nations.with.aidan.lets.play.mp3'
-            ],
-            win: [
-                'bragging.mp3',
-                'chirping.mp3',
-                'gloating.mp3',
-                'haha.i.win.mp3',
-                'i got ya.mp3',
-                'i.am.the.champion.mp3',
-                'i.love.winning.mp3'
-            ],
-            lose: [
-                'after a loss.mp3',
-                'bored.mp3',
-                'embarassed.mp3',
-                'mindblowing.mp3',
-                'nervous.mp3',
-                'not.my.day.mp3',
-                'shouda.seen.a.movie.mp3',
-                'what.just.happened.mp3',
-                'you.cant.be.that.good.mp3',
-                'you.got.lucky.mp3'
-            ]
+            aidan: {
+                intro: [
+                    'choose.a.category.mp3',
+                    'mynameisaidan-intro.mp3',
+                    'think you can beat me intro.mp3',
+                    'up.for.a.challenge.mp3',
+                    'nations.with.aidan.lets.play.mp3'
+                ],
+                win: [
+                    'bragging.mp3',
+                    'chirping.mp3',
+                    'gloating.mp3',
+                    'haha.i.win.mp3',
+                    'i got ya.mp3',
+                    'i.am.the.champion.mp3',
+                    'i.love.winning.mp3'
+                ],
+                lose: [
+                    'after a loss.mp3',
+                    'bored.mp3',
+                    'embarassed.mp3',
+                    'mindblowing.mp3',
+                    'nervous.mp3',
+                    'not.my.day.mp3',
+                    'shouda.seen.a.movie.mp3',
+                    'what.just.happened.mp3',
+                    'you.cant.be.that.good.mp3',
+                    'you.got.lucky.mp3'
+                ]
+            },
+            sarah: {
+                intro: [],
+                win: [
+                    'aidanwho.mp3',
+                    'iamsogood.mp3',
+                    'imthebest.mp3',
+                    'whowonme.mp3',
+                    'winnerme.mp3'
+                ],
+                lose: [
+                    'Hahayousuck-sarah.mp3',
+                    'fuckoff.mp3',
+                    'neveragain.mp3',
+                    'potofgold.mp3',
+                    'thatsenough.mp3'
+                ]
+            }
         };
 
         this.folders = {
-            intro: 'intros/',
-            win: 'after winning/',
-            lose: 'after losing/'
+            aidan: {
+                intro: 'aidanvoice/intros/',
+                win: 'aidanvoice/after winning/',
+                lose: 'aidanvoice/after losing/'
+            },
+            sarah: {
+                intro: 'sarah/sarah intros/',
+                win: 'sarah/sarah wins/',
+                lose: 'sarah/sarah loses/'
+            }
         };
 
-        this.unplayed = { intro: [], win: [], lose: [] };
+        this.unplayed = { 
+            aidan: { intro: [], win: [], lose: [] },
+            sarah: { intro: [], win: [], lose: [] }
+        };
         
         // WebAudio API for bulletproof Safari mobile playback
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioCtx();
         this.currentSource = null;
+    }
+
+    toggleVoice() {
+        this.voiceMode = this.voiceMode === 'aidan' ? 'sarah' : 'aidan';
+        console.log("Voice mode switched to: " + this.voiceMode);
+        return this.voiceMode;
     }
 
     unlock() {
@@ -53,14 +90,16 @@ class AudioManager {
     }
 
     async playRandom(category) {
-        if (!this.pools[category]) return;
+        const currentPools = this.pools[this.voiceMode];
+        if (!currentPools || !currentPools[category] || currentPools[category].length === 0) return;
         
-        if (this.unplayed[category].length === 0) {
-            this.unplayed[category] = [...this.pools[category]].sort(() => Math.random() - 0.5);
+        const currentUnplayed = this.unplayed[this.voiceMode];
+        if (currentUnplayed[category].length === 0) {
+            currentUnplayed[category] = [...currentPools[category]].sort(() => Math.random() - 0.5);
         }
         
-        const randomFile = this.unplayed[category].pop();
-        const fullPath = this.basePath + this.folders[category] + randomFile;
+        const randomFile = currentUnplayed[category].pop();
+        const fullPath = this.basePath + this.folders[this.voiceMode][category] + randomFile;
         
         this.stop();
         

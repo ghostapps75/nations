@@ -393,6 +393,16 @@
         }
         function hideStatus() { document.getElementById('statusOverlay').classList.remove('active'); }
 
+        window.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 's') {
+                const mode = audioManager.toggleVoice();
+                showStatus(`Opponent Voice: ${mode.toUpperCase()}`);
+                setTimeout(() => {
+                    hideStatus();
+                }, 1500);
+            }
+        });
+
         init();
     </script>
 </body>
