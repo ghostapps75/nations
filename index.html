@@ -83,40 +83,47 @@
         </div>
     </div>
 
-    <div id="startScreen" class="modal-overlay" style="display:flex;">
-        <div class="modal-content">
-            <img src="./assets/aidan.png" class="logo-avatar" alt="Aidan's Avatar">
-            <h1>Nations with Aidan 🌍</h1>
-            <p>Can you beat the master?</p>
+    <div id="startScreen" class="start-screen-full">
+        <div id="landingFlagsContainer"></div>
+        
+        <div class="landing-content-wrapper">
+            <div class="landing-left">
+                <img src="./assets/aidan.png" class="landing-aidan" alt="Aidan">
+            </div>
             
-            <div class="settings-container">
-                <div class="setting-box">
-                    <label for="difficultySelect">Difficulty:</label>
-                    <select id="difficultySelect" title="Select Game Difficulty">
-                        <option value="easy">Easy</option>
-                        <option value="medium" selected>Medium</option>
-                        <option value="hard">Hard</option>
-                    </select>
+            <div class="landing-right modal-content" style="border-top: none; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                <h1 style="font-size: 2.5rem; text-shadow: none;">NATIONS WITH AIDAN</h1>
+                <p style="color: #444; font-size: 1.2rem; font-weight: bold;">Can you beat the master?</p>
+                
+                <div class="settings-container" style="background: none; border: none; padding: 0;">
+                    <div class="setting-box" style="background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee;">
+                        <label for="difficultySelect">Difficulty:</label>
+                        <select id="difficultySelect" title="Select Game Difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="setting-box" style="background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee;">
+                        <label for="deckSizeSelect">Points to Win:</label>
+                        <select id="deckSizeSelect" title="Select Points to Win">
+                            <option value="10" selected>10 Points</option>
+                            <option value="20">20 Points</option>
+                            <option value="30">30 Points</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="setting-box">
-                    <label for="deckSizeSelect">Points to Win:</label>
-                    <select id="deckSizeSelect" title="Select Points to Win">
-                        <option value="10" selected>10 Points</option>
-                        <option value="20">20 Points</option>
-                        <option value="30">30 Points</option>
-                    </select>
-                </div>
-            </div>
 
-            <div class="start-instructions">
-                <strong>Instructions:</strong>
-                <ul>
-                    <li>👆 Pick your best Stat (Green).</li>
-                    <li>👀 Compare with Aidan.</li>
-                    <li>🏆 Highest number wins!</li>
-                </ul>
+                <div class="start-instructions" style="background:#fff; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #eee; border-left: 5px solid var(--accent-gold);">
+                    <strong>How to Play:</strong>
+                    <ul style="color:#555; margin-bottom: 0;">
+                        <li>👆 Pick your highest State value (Green).</li>
+                        <li>👀 Compare with Aidan.</li>
+                        <li>🏆 Highest number wins the trick!</li>
+                    </ul>
+                </div>
+                <button id="startBtn" style="font-size:1.5rem; padding:15px 40px; cursor:pointer; background:var(--primary-navy); color:white; border:none; border-radius:30px; width:100%; box-shadow: 0 10px 20px rgba(0,31,63,0.3); font-weight: bold;">START GAME</button>
             </div>
-            <button id="startBtn" style="font-size:1.5rem; padding:15px 40px; cursor:pointer; background:#4caf50; color:white; border:none; border-radius:10px; width:100%;">START GAME</button>
         </div>
     </div>
 
@@ -164,7 +171,34 @@
                 };
                 document.getElementById('startBtn').onclick = startGame;
                 document.getElementById('nextBtn').onclick = advanceRound;
+                
+                layoutLandingFlags();
             } catch (error) { console.error(error); alert("Error loading data."); }
+        }
+
+        function layoutLandingFlags() {
+            const container = document.getElementById('landingFlagsContainer');
+            if(!container || !COUNTRIES_DATA) return;
+            
+            const flags = [...COUNTRIES_DATA].sort(() => Math.random() - 0.5).slice(0, 40);
+            flags.forEach(country => {
+                const img = document.createElement('img');
+                img.src = country.FlagImageURL;
+                img.className = 'landing-flag';
+                
+                // Keep mainly to edges
+                const edge = Math.floor(Math.random() * 4);
+                let x, y;
+                if (edge === 0) { x = Math.random() * 100; y = -5 + Math.random() * 15; } // Top
+                if (edge === 1) { x = Math.random() * 100; y = 85 + Math.random() * 15; } // Bottom
+                if (edge === 2) { x = -5 + Math.random() * 15; y = Math.random() * 100; } // Left
+                if (edge === 3) { x = 85 + Math.random() * 15; y = Math.random() * 100; } // Right
+                
+                img.style.left = `${x}vw`;
+                img.style.top = `${y}vh`;
+                img.style.transform = `rotate(${(Math.random() - 0.5) * 80}deg) scale(${0.4 + Math.random() * 0.8})`;
+                container.appendChild(img);
+            });
         }
 
         function startGame() {
