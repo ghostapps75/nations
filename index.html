@@ -159,7 +159,8 @@
             if (audioManager.muted) audioManager.stop();
         };
 
-        async function speakAidan(category) {
+        async function speakAidan(category, chance = 1.0) {
+            if (chance < 1.0 && Math.random() >= chance) return Promise.resolve();
             return audioManager.playRandom(category);
         }
 
@@ -532,11 +533,11 @@
 
                 feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#d32f2f; font-weight:bold; margin-bottom:10px;">WRONG! <br>Correct Answer: <span style="color:#2e7d32">${label}</span></p>`;
                 await audioManager.playSFX("lose challenge");
-                speakAidan("win");
+                speakAidan("win", 3/8);
             } else {
                 feedbackDiv.innerHTML = `<p style="font-size:1.2rem; color:#2e7d32; font-weight:bold; margin-bottom:10px;">CHALLENGE WON!</p>`;
                 await audioManager.playSFX("win challenge");
-                speakAidan("lose");
+                speakAidan("lose", 3/8);
             }
 
             const contBtn = document.createElement('button');
@@ -593,7 +594,7 @@
             if (result.winner === 'cpu') {
                 setAidanMood('happy');
                 await audioManager.playSFX("lose point");
-                speakAidan("win");
+                speakAidan("win", 3/8);
             } else if (result.winner === 'player') {
                 setAidanMood('grumpy');
                 if (game.playerScore >= game.TARGET_SCORE - 1) {
@@ -601,7 +602,7 @@
                 } else {
                     await audioManager.playSFX("win point");
                 }
-                speakAidan("lose");
+                speakAidan("lose", 3/8);
             } else {
                 // No draw sound for now
             }
