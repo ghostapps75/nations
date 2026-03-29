@@ -124,6 +124,7 @@
 
         let game;
         const audioManager = new AudioManager();
+        const winAudioNode = new Audio('./assets/audio/winner.mp3');
         let isAnimating = false;
         let isAdvancing = false;
         let pendingWinner = null;
@@ -197,6 +198,11 @@
             game.setDifficulty(diff); game.setDeckSize(size);
             document.getElementById('startScreen').style.display = 'none';
             document.getElementById('endGameScreen').style.display = 'none'; // Hide end screen
+            
+            // Unlock audio on iOS 
+            winAudioNode.play().catch(e => {}); 
+            winAudioNode.pause();
+            
             speakAidan("intro");
             game.startGame();
             renderBoard();
@@ -249,8 +255,8 @@
 
             if (userWon) {
                 speakAidan("lose");
-                const winAudio = new Audio('./assets/audio/winner.mp3');
-                winAudio.play().catch(e => console.warn(e));
+                winAudioNode.currentTime = 0;
+                winAudioNode.play().catch(e => console.warn(e));
                 screen.innerHTML = `
                     <div class="golden-ticket">
                         <div class="ticket-header">ADMIT ONE</div>

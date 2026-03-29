@@ -39,7 +39,7 @@ class AudioManager {
         };
 
         this.unplayed = { intro: [], win: [], lose: [] };
-        this.currentAudio = null;
+        this.audioElement = new Audio();
     }
 
     playRandom(category) {
@@ -53,15 +53,14 @@ class AudioManager {
         const fullPath = this.basePath + this.folders[category] + randomFile;
         
         this.stop();
-        this.currentAudio = new Audio(fullPath);
-        this.currentAudio.play().catch(e => console.warn(`Audio play failed for ${fullPath}:`, e));
+        this.audioElement.src = fullPath;
+        this.audioElement.play().catch(e => console.warn(`Audio play failed for ${fullPath}:`, e));
     }
 
     stop() {
-        if (this.currentAudio) {
-            this.currentAudio.pause();
-            this.currentAudio.currentTime = 0;
-            this.currentAudio = null;
+        if (this.audioElement && !this.audioElement.paused) {
+            this.audioElement.pause();
+            this.audioElement.currentTime = 0;
         }
     }
 }
