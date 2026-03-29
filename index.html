@@ -14,11 +14,17 @@
 </head>
 <body>
     <header>
-        <div class="deck-counts">
-            Your Points: <span id="playerCount">0</span> | Aidan's Points: <span id="cpuCount">0</span>
+        <div class="header-left">
+            <div class="deck-counts">Your Points: <span id="playerCount">0</span></div>
+            <div class="deck-counts">Aidan's Points: <span id="cpuCount">0</span></div>
         </div>
-        <h1 id="turnIndicator">Your Turn!</h1>
-        <button class="help-btn" onclick="toggleHelp()">GAME RULES</button>
+        <div class="header-center">
+            <div id="aidanAvatar"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar" title="Aidan"></div>
+        </div>
+        <div class="header-right">
+            <button class="help-btn" onclick="toggleHelp()">RULES</button>
+        </div>
+        <h1 id="turnIndicator" style="display: none;">Your Turn!</h1>
     </header>
 
     <div class="game-board" id="gameBoard">
@@ -26,7 +32,6 @@
         <div id="nextRoundOverlay"><button id="nextBtn">Next Round ➡</button></div>
 
         <div class="cpu-area">
-            <div id="aidanAvatar"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar" title="Aidan"></div>
             <div class="card-container" id="cpuCardContainer">
                 <div class="card" id="cpuCard">
                     <div class="card-back">?</div>
