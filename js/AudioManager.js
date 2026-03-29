@@ -39,10 +39,20 @@ class AudioManager {
         };
 
         this.unplayed = { intro: [], win: [], lose: [] };
-        this.audioElement = new Audio();
+        
+        // WebAudio API for bulletproof Safari mobile playback
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        this.ctx = new AudioCtx();
+        this.currentSource = null;
     }
 
-    playRandom(category) {
+    unlock() {
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    async playRandom(category) {
         if (!this.pools[category]) return;
         
         if (this.unplayed[category].length === 0) {
@@ -53,14 +63,28 @@ class AudioManager {
         const fullPath = this.basePath + this.folders[category] + randomFile;
         
         this.stop();
-        this.audioElement.src = fullPath;
-        this.audioElement.play().catch(e => console.warn(`Audio play failed for ${fullPath}:`, e));
+        
+        try {
+            const res = await fetch(fullPath);
+            const arrayBuffer = await res.arrayBuffer();
+            const audioBuffer = await this.ctx.decodeAudioData(arrayBuffer);
+            
+            this.currentSource = this.ctx.createBufferSource();
+            this.currentSource.buffer = audioBuffer;
+            this.currentSource.connect(this.ctx.destination);
+            this.currentSource.start(0);
+        } catch (e) {
+            console.warn(`WebAudio API play failed for ${fullPath}:`, e);
+            // Fallback for extremely old browsers if decodeAudioData fails
+            const fb = new Audio(fullPath);
+            fb.play().catch(()=>{});
+        }
     }
 
     stop() {
-        if (this.audioElement && !this.audioElement.paused) {
-            this.audioElement.pause();
-            this.audioElement.currentTime = 0;
+        if (this.currentSource) {
+            try { this.currentSource.stop(); } catch (e) {}
+            this.currentSource = null;
         }
     }
 }
