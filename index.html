@@ -286,6 +286,14 @@
 
         function renderCardContent(container, cardData, isPlayer) {
             if (!cardData) return;
+            
+            // Check if card is the exact same (retained from a win) to prevent image flashing layout jump!
+            const currentTitle = container.querySelector('.country-name');
+            if (currentTitle && currentTitle.innerText === cardData.Name.toUpperCase()) {
+                const rows = container.querySelectorAll('.stat-row');
+                rows.forEach(r => r.classList.remove('winner-stat', 'loser-stat'));
+                return;
+            }
             const fmt = (n) => (n !== undefined && n !== null) ? n.toLocaleString() : 'N/A';
             const makeRow = (k, l, u) => `
                 <div class="stat-row" ${isPlayer ? `onclick="window.onStatClick('${k}')"` : `id="cpu-stat-${k}"`}>
