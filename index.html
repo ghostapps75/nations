@@ -26,7 +26,8 @@
         <div class="header-center">
             <div id="aidanAvatar"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar"></div>
         </div>
-        <div class="header-right">
+        <div class="header-right" style="display: flex; gap: 10px;">
+            <button id="muteBtn" class="help-btn" onclick="toggleMute()" style="background:var(--accent-gold); color:var(--primary-navy);">🗣️ ON</button>
             <button class="help-btn" onclick="toggleHelp()">RULES</button>
         </div>
         <h1 id="turnIndicator" style="display: none;">Your Turn!</h1>
@@ -149,7 +150,17 @@
 
         window.toggleHelp = () => document.getElementById('helpModal').classList.toggle('active');
 
+        let aidanMuted = false;
+        window.toggleMute = () => {
+            aidanMuted = !aidanMuted;
+            const btn = document.getElementById('muteBtn');
+            btn.innerHTML = aidanMuted ? '🔇 OFF' : '🗣️ ON';
+            btn.style.background = aidanMuted ? '#888' : 'var(--accent-gold)';
+            btn.style.color = aidanMuted ? '#fff' : 'var(--primary-navy)';
+        };
+
         async function speakAidan(category) {
+            if (aidanMuted) return Promise.resolve();
             return audioManager.playRandom(category);
         }
 
