@@ -360,8 +360,8 @@ header h1 {
 }
 
 /* --- ANIMATIONS --- */
-@keyframes flyToPlayer { 100% { transform: scale(0) translate(-300%, 300%); opacity: 0; } }
-@keyframes flyToCpu { 100% { transform: scale(0) translate(300%, -300%); opacity: 0; } }
+@keyframes flyToPlayer { 100% { transform: scale(0) translate(-300%, -100%); opacity: 0; } }
+@keyframes flyToCpu { 100% { transform: scale(0) translate(300%, -100%); opacity: 0; } }
 @keyframes flyIn {
     0% { transform: translateY(15vh) scale(0.6); opacity: 0; }
     100% { transform: translateY(0) scale(1); opacity: 1; }
