@@ -24,7 +24,7 @@
             <div class="deck-counts">Aidan's Points: <span id="cpuCount">0</span></div>
         </div>
         <div class="header-center">
-            <div id="aidanAvatar"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar" title="Aidan"></div>
+            <div id="aidanAvatar" style="cursor: pointer;" onclick="window.toggleVoiceMobile()" title="Tap to switch opponent voice!"><img src="./assets/aidan.png" id="aidanImg" alt="Aidan's Avatar"></div>
         </div>
         <div class="header-right">
             <button class="help-btn" onclick="toggleHelp()">RULES</button>
@@ -78,7 +78,7 @@
         
         <div class="landing-content-wrapper">
             <div class="landing-left">
-                <img src="./assets/aidan.png" class="landing-aidan" alt="Aidan">
+                <img src="./assets/aidan.png" class="landing-aidan" alt="Aidan" onclick="window.toggleVoiceMobile()" style="cursor: pointer;" title="Tap to switch opponent voice!">
             </div>
             
             <div class="landing-right modal-content" style="border-top: none; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
@@ -395,13 +395,17 @@
 
         window.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 's') {
-                const mode = audioManager.toggleVoice();
-                showStatus(`Opponent Voice: ${mode.toUpperCase()}`);
-                setTimeout(() => {
-                    hideStatus();
-                }, 1500);
+                window.toggleVoiceMobile();
             }
         });
+
+        window.toggleVoiceMobile = () => {
+            const mode = audioManager.toggleVoice();
+            showStatus(`Opponent Voice: ${mode.toUpperCase()}`);
+            setTimeout(() => {
+                hideStatus();
+            }, 1500);
+        };
 
         init();
     </script>
