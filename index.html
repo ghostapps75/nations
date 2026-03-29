@@ -211,6 +211,9 @@
             document.getElementById('playerCardContainer').parentElement.classList.remove(...flyClasses);
             document.getElementById('cpuCardContainer').parentElement.classList.remove(...flyClasses);
 
+            document.getElementById('playerCardContainer').parentElement.classList.add('anim-fly-in');
+            document.getElementById('cpuCardContainer').parentElement.classList.add('anim-fly-in');
+
             const ind = document.getElementById('turnIndicator');
             
             if (game.state === 'game_over') {
@@ -325,9 +328,19 @@
             document.getElementById('nextRoundOverlay').style.display = 'none';
             hideStatus();
             setAidanMood('neutral');
+
+            document.getElementById('playerCardContainer').parentElement.classList.remove('anim-fly-in');
+            document.getElementById('cpuCardContainer').parentElement.classList.remove('anim-fly-in');
+
             const anim = pendingWinner === 'player' ? 'anim-fly-player' : 'anim-fly-cpu';
             document.getElementById('playerCardContainer').parentElement.classList.add(anim);
             document.getElementById('cpuCardContainer').parentElement.classList.add(anim);
+
+            if (game.drawPile.length > 1) {
+                new Image().src = game.drawPile[0].FlagImageURL;
+                new Image().src = game.drawPile[1].FlagImageURL;
+            }
+
             setTimeout(() => {
                 game.resolveRound();
                 renderBoard();
