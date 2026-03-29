@@ -6,7 +6,8 @@ class AudioManager {
                 'choose.a.category.mp3',
                 'mynameisaidan-intro.mp3',
                 'think you can beat me intro.mp3',
-                'up.for.a.challenge.mp3'
+                'up.for.a.challenge.mp3',
+                'nations.with.aidan.lets.play.mp3'
             ],
             win: [
                 'bragging.mp3',
@@ -15,8 +16,7 @@ class AudioManager {
                 'haha.i.win.mp3',
                 'i got ya.mp3',
                 'i.am.the.champion.mp3',
-                'i.love.winning.mp3',
-                'nations.with.aidan.lets.play.mp3'
+                'i.love.winning.mp3'
             ],
             lose: [
                 'after a loss.mp3',
