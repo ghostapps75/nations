@@ -12,7 +12,7 @@ class GameState {
         this.TARGET_SCORE = 10;
 
         this.maxStats = {
-            GDP: 25462,
+            GDP_PerCapita: 203853,
             Area: 6601670, 
             Population: 1439323776, 
             HighestPoint: 29029, 
@@ -54,6 +54,86 @@ class GameState {
         return this.roundResult;
     }
 
+    triggerChallenge() {
+        if (this.state !== 'waiting_for_input') return null;
+        this.state = 'waiting_for_challenge_response';
+
+        const playerCard = this.playerDeck[0];
+        const cpuCard = this.cpuDeck[0]; 
+
+        const types = ['flag', 'capital', 'reverse_flag']; 
+        const type = types[Math.floor(Math.random() * types.length)];
+
+        let question = "";
+        let headerImage = null; 
+        let correctAnswer = ""; 
+        let options = []; 
+
+        if (type === 'flag') {
+            question = "Aidan shows a flag. Name the country!";
+            headerImage = cpuCard.FlagImageURL;
+            correctAnswer = cpuCard.Name;
+            const wrongOpts = this.getWrongOptions(cpuCard.Name, 'Name', 3, cpuCard);
+            options = [cpuCard.Name, ...wrongOpts].sort(() => Math.random() - 0.5)
+                        .map(t => ({ text: t, image: null }));
+
+        } else if (type === 'capital') {
+            question = `What is the capital of ${cpuCard.Name}?`;
+            correctAnswer = cpuCard.Capital;
+            const wrongOpts = this.getWrongOptions(cpuCard.Capital, 'Capital', 3, cpuCard);
+            options = [cpuCard.Capital, ...wrongOpts].sort(() => Math.random() - 0.5)
+                        .map(t => ({ text: t, image: null }));
+        } else if (type === 'reverse_flag') {
+            question = `Which flag belongs to ${cpuCard.Name}?`;
+            correctAnswer = cpuCard.FlagImageURL;
+            const wrongOpts = this.getWrongOptions(cpuCard.FlagImageURL, 'FlagImageURL', 3, cpuCard);
+            options = [cpuCard.FlagImageURL, ...wrongOpts].sort(() => Math.random() - 0.5)
+                        .map(url => ({ text: null, image: url })); 
+        }
+
+        this.roundResult = {
+            isChallenge: true, type, question, headerImage, options, correctAnswer, playerCard, cpuCard
+        };
+        return this.roundResult;
+    }
+
+    getWrongOptions(correctVal, field, count, correctCard) {
+        let pool = [...this.allCards];
+        
+        if (correctCard && this.difficulty === 'easy') {
+            pool.sort((a, b) => a.Area - b.Area);
+            const index = pool.findIndex(c => c.Name === correctCard.Name);
+            if (index > pool.length / 2) pool = pool.slice(0, 30);
+            else pool = pool.slice(-30);
+        } else if (correctCard && this.difficulty === 'hard') {
+            pool.sort((a, b) => a.Area - b.Area);
+            const index = pool.findIndex(c => c.Name === correctCard.Name);
+            const start = Math.max(0, index - 10);
+            pool = pool.slice(start, start + 21);
+        }
+
+        const wrongs = [];
+        let attempts = 0;
+        while(wrongs.length < count && attempts < 100) {
+            attempts++;
+            const r = pool[Math.floor(Math.random() * pool.length)];
+            const val = r[field];
+            if (val !== correctVal && !wrongs.includes(val)) wrongs.push(val);
+        }
+        
+        // Fallback safety
+        while(wrongs.length < count) {
+            const r = this.allCards[Math.floor(Math.random() * this.allCards.length)];
+            const val = r[field];
+            if (val !== correctVal && !wrongs.includes(val)) wrongs.push(val);
+        }
+        return wrongs;
+    }
+
+    resolveChallenge(userWon) {
+        this.roundResult.winner = userWon ? 'player' : 'cpu';
+        return this.roundResult;
+    }
 
 
     resolveRound() {
@@ -96,15 +176,17 @@ class GameState {
         if (this.currentTurn !== 'cpu' || this.state !== 'waiting_for_input') return;
         const card = this.cpuCurrentCard;
         
-        // VISUAL ORDER: Area, Pop, GDP, Elev, Neighbors
-        const stats = ['Area', 'Population', 'GDP', 'HighestPoint', 'NeighboringCountries'];
+        // VISUAL ORDER: Area, Pop, GDP_PerCapita, Elev, Neighbors
+        const stats = ['Area', 'Population', 'GDP_PerCapita', 'HighestPoint', 'NeighboringCountries'];
         let pickedStat = stats[0];
 
-        if (this.difficulty === 'easy') pickedStat = stats[Math.floor(Math.random() * stats.length)];
-        else if (this.difficulty === 'medium') {
-            if (Math.random() > 0.6) pickedStat = stats[Math.floor(Math.random() * stats.length)];
-            else pickedStat = this.getBestStat(card, stats);
-        } else pickedStat = this.getBestStat(card, stats);
+        if (this.difficulty === 'easy') {
+            pickedStat = Math.random() > 0.15 ? stats[Math.floor(Math.random() * stats.length)] : this.getBestStat(card, stats);
+        } else if (this.difficulty === 'medium') {
+            pickedStat = Math.random() > 0.70 ? stats[Math.floor(Math.random() * stats.length)] : this.getBestStat(card, stats);
+        } else {
+            pickedStat = Math.random() > 0.85 ? stats[Math.floor(Math.random() * stats.length)] : this.getBestStat(card, stats);
+        }
 
         if (this.onCpuPick) this.onCpuPick(pickedStat);
         else this.evaluateTurn(pickedStat);
@@ -118,5 +200,15 @@ class GameState {
             if (score > maxScore) { maxScore = score; best = s; }
         });
         return best;
+    }
+
+    isPoorCard(card) {
+        const stats = ['Area', 'Population', 'GDP_PerCapita', 'HighestPoint', 'NeighboringCountries'];
+        for (let s of stats) {
+            if ((card[s] / this.maxStats[s]) > 0.20) {
+                return false; 
+            }
+        }
+        return true;
     }
 }

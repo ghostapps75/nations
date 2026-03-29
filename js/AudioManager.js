@@ -33,23 +33,6 @@ class AudioManager {
                     'you.cant.be.that.good.mp3',
                     'you.got.lucky.mp3'
                 ]
-            },
-            sarah: {
-                intro: [],
-                win: [
-                    'aidanwho.mp3',
-                    'iamsogood.mp3',
-                    'imthebest.mp3',
-                    'whowonme.mp3',
-                    'winnerme.mp3'
-                ],
-                lose: [
-                    'Hahayousuck-sarah.mp3',
-                    'fuckoff.mp3',
-                    'neveragain.mp3',
-                    'potofgold.mp3',
-                    'thatsenough.mp3'
-                ]
             }
         };
 
@@ -58,17 +41,11 @@ class AudioManager {
                 intro: 'aidanvoice/intros/',
                 win: 'aidanvoice/after winning/',
                 lose: 'aidanvoice/after losing/'
-            },
-            sarah: {
-                intro: 'sarah/sarah intros/',
-                win: 'sarah/sarah wins/',
-                lose: 'sarah/sarah loses/'
             }
         };
 
         this.unplayed = { 
-            aidan: { intro: [], win: [], lose: [] },
-            sarah: { intro: [], win: [], lose: [] }
+            aidan: { intro: [], win: [], lose: [] }
         };
         
         // WebAudio API for bulletproof Safari mobile playback
@@ -77,11 +54,7 @@ class AudioManager {
         this.currentSource = null;
     }
 
-    toggleVoice() {
-        this.voiceMode = this.voiceMode === 'aidan' ? 'sarah' : 'aidan';
-        console.log("Voice mode switched to: " + this.voiceMode);
-        return this.voiceMode;
-    }
+
 
     unlock() {
         if (this.ctx.state === 'suspended') {

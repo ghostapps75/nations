@@ -123,8 +123,118 @@ header h1 {
 .player-area .card-container { height: 100%; transition: transform 0.4s; }
 .player-area .card-container:hover { transform: translateY(-15px) rotate(1deg); }
 
-/* Challenge button removed by user request */
+/* --- CHALLENGE STYLES --- */
+#challengeBtn {
+    position: absolute;
+    bottom: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: 3px solid #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.5);
+    z-index: 50;
+    transition: all 0.3s;
+    white-space: nowrap;
+    animation: challengePulse 2s infinite;
+}
+#challengeBtn:hover {
+    transform: translateX(-50%) scale(1.05);
+    background: linear-gradient(135deg, #c0392b, #962d22);
+}
+@keyframes challengePulse {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+#challengeBtn.glow-hint {
+    animation: challengeGlowHint 1s ease-in-out infinite alternate;
+    border-color: #ffd700;
+}
+@keyframes challengeGlowHint {
+    0% { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3); background: linear-gradient(135deg, #e74c3c, #c0392b); transform: translateX(-50%) scale(1); }
+    100% { box-shadow: 0 0 30px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 215, 0, 0.8); background: linear-gradient(135deg, #ff4757, #ff6b81); transform: translateX(-50%) scale(1.1); }
+}
 
+.challenge-content {
+    width: 90%;
+    max-width: 600px;
+    padding: 30px;
+}
+
+.challenge-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.option-btn {
+    padding: 15px 10px;
+    background: #f0f4f8;
+    border: 2px solid #d1d9e6;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary-navy);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.option-btn:hover:not(:disabled) {
+    background: var(--accent-gold-light);
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+}
+.option-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+
+.option-img-btn {
+    padding: 10px;
+    background: #f0f4f8;
+    border: 2px solid #d1d9e6;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.option-img-btn:hover:not(:disabled) {
+    background: var(--accent-gold-light);
+    border-color: var(--accent-gold);
+    transform: translateY(-2px);
+}
+.option-img-btn img {
+    max-width: 100%;
+    max-height: 80px;
+    border-radius: 5px;
+    object-fit: contain;
+}
+.option-img-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+
+#challengeFeedback { margin-top: 20px; text-align: center; }
+.challenge-continue-btn {
+    margin-top: 15px;
+    padding: 12px 30px;
+    background: var(--primary-navy);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: transform 0.2s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.challenge-continue-btn:hover { transform: scale(1.05); }
 /* --- CARD STYLES --- */
 .card-container { aspect-ratio: 2.5 / 3.8; position: relative; perspective: 1200px; }
 .card {
@@ -216,6 +326,11 @@ header h1 {
     .stat-row { padding: 8px 12px; font-size: 0.95rem; }
     
     .start-instructions { padding: 10px !important; margin: 10px 0 !important; font-size: 0.9rem; }
+    
+    #challengeBtn { top: auto; bottom: -50px; font-size: 0.95rem; padding: 8px 16px; border-width: 2px; }
+    .challenge-content { padding: 20px; }
+    .challenge-options { grid-template-columns: 1fr; gap: 10px; }
+    .option-btn { padding: 12px 10px; font-size: 0.95rem; }
 }
 
 /* --- OVERLAYS --- */
