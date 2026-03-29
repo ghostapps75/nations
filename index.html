@@ -306,58 +306,74 @@
         }
 
         window.advanceTutorial = () => {
-            const rows = document.getElementById('pStats').querySelectorAll('.stat-row');
-            const tb = document.getElementById('tutorialBubble');
-            const msg = document.getElementById('tutorialMessage');
-            const nxtBtn = document.getElementById('tutorialNextBtn');
-            const chBtn = document.getElementById('challengeBtn');
+            try {
+                const rows = document.querySelectorAll('#pStats .stat-row');
+                const tb = document.getElementById('tutorialBubble');
+                const msg = document.getElementById('tutorialMessage');
+                const nxtBtn = document.getElementById('tutorialNextBtn');
+                const chBtn = document.getElementById('challengeBtn');
 
-            tutorialStep++;
+                tutorialStep++;
 
-            if (tutorialStep === 1) {
-                msg.innerHTML = "<strong>Your opponent has a country card you cannot see.</strong><br><br>You must pick the category on your card that you believe has the best chance of being higher than your opponent's.";
-                nxtBtn.style.display = 'none';
+                if (tutorialStep === 1) {
+                    if (msg) msg.innerHTML = "<strong>Your opponent has a country card you cannot see.</strong><br><br>You must pick the category on your card that you believe has the best chance of being higher than your opponent's.";
+                    if (nxtBtn) nxtBtn.style.display = 'none';
 
-                let delay = 1500;
-                rows.forEach((row, index) => {
-                    setTimeout(() => {
-                        row.classList.add(`tutorial-highlight-${index}`);
-                        const arr = document.getElementById(`tut-arrow-${index}`);
-                        if (arr) arr.style.display = 'inline-block';
-
+                    let delay = 1500;
+                    rows.forEach((row, index) => {
                         setTimeout(() => {
-                            row.classList.remove(`tutorial-highlight-${index}`);
-                            if (arr) arr.style.display = 'none';
-                        }, 1200);
-                    }, delay + (index * 1200));
-                });
-                
-                setTimeout(() => window.advanceTutorial(), delay + (rows.length * 1200) + 500);
+                            row.classList.add(`tutorial-highlight-${index}`);
+                            const arr = document.getElementById(`tut-arrow-${index}`);
+                            if (arr) arr.style.display = 'inline-block';
 
-            } else if (tutorialStep === 2) {
-                rows.forEach((row, index) => {
-                    const arr = document.getElementById(`tut-arrow-${index}`);
-                    if (arr) arr.style.display = 'none';
-                });
-                msg.innerHTML = "<strong>OR...</strong><br>If you don't think any will win, try the challenge!";
-                chBtn.classList.add('glow-hint');
-                
-                nxtBtn.style.display = 'inline-block';
-                nxtBtn.innerText = 'CLICK TO START GAME';
-                nxtBtn.style.background = 'var(--accent-gold)';
-                nxtBtn.style.color = 'var(--primary-navy)';
-            } else if (tutorialStep === 3) {
-                chBtn.classList.remove('glow-hint');
+                            setTimeout(() => {
+                                row.classList.remove(`tutorial-highlight-${index}`);
+                                if (arr) arr.style.display = 'none';
+                            }, 1200);
+                        }, delay + (index * 1200));
+                    });
+                    
+                    setTimeout(() => window.advanceTutorial(), delay + (rows.length * 1200) + 500);
+
+                } else if (tutorialStep === 2) {
+                    rows.forEach((row, index) => {
+                        const arr = document.getElementById(`tut-arrow-${index}`);
+                        if (arr) arr.style.display = 'none';
+                    });
+                    if (msg) msg.innerHTML = "<strong>OR...</strong><br>If you don't think any will win, try the challenge!";
+                    if (chBtn) chBtn.classList.add('glow-hint');
+                    
+                    if (nxtBtn) {
+                        nxtBtn.style.display = 'inline-block';
+                        nxtBtn.innerText = 'CLICK TO START GAME';
+                        nxtBtn.style.background = 'var(--accent-gold)';
+                        nxtBtn.style.color = 'var(--primary-navy)';
+                    }
+                } else if (tutorialStep >= 3) {
+                    isTutorialing = false;
+                    if (tb) {
+                        tb.classList.remove('solo-tutorial-bubble');
+                        tb.style.display = 'none';
+                    }
+                    if (chBtn) chBtn.classList.remove('glow-hint');
+
+                    const cpuArea = document.getElementById('cpuArea');
+                    if (cpuArea) {
+                        cpuArea.style.display = 'flex';
+                        void cpuArea.offsetHeight; // Force WebKit reflow
+                    }
+                    
+                    showStatus("Pick a Stat!");
+                    setTimeout(hideStatus, 2000);
+                    speakAidan("intro").catch(e => console.warn(e));
+                }
+            } catch (err) {
+                console.error("Tutorial advance error:", err);
                 isTutorialing = false;
-                const cpuArea = document.getElementById('cpuArea');
-                cpuArea.style.display = 'flex';
-                void cpuArea.offsetHeight; // Force WebKit reflow for Safari
-                tb.classList.remove('solo-tutorial-bubble');
-                tb.style.display = 'none';
-                
-                showStatus("Pick a Stat!");
-                setTimeout(hideStatus, 2000);
-                speakAidan("intro");
+                const tb = document.getElementById('tutorialBubble');
+                if(tb) tb.style.display = 'none';
+                const cpu = document.getElementById('cpuArea');
+                if(cpu) cpu.style.display = 'flex';
             }
         };
 
