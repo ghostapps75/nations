@@ -65,6 +65,7 @@ class AudioManager {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioCtx();
         this.currentSource = null;
+        this.muted = false;
     }
 
 
@@ -76,6 +77,7 @@ class AudioManager {
     }
 
     playSFX(category) {
+        if (this.muted) return Promise.resolve();
         return new Promise((resolve) => {
             if (!this.sfxPools[category] || this.sfxPools[category].length === 0) return resolve();
             
@@ -108,6 +110,7 @@ class AudioManager {
     }
 
     playRandom(category) {
+        if (this.muted) return Promise.resolve();
         return new Promise(async (resolve) => {
             const currentPools = this.pools[this.voiceMode];
             if (!currentPools || !currentPools[category] || currentPools[category].length === 0) return resolve();

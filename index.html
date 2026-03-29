@@ -150,17 +150,16 @@
 
         window.toggleHelp = () => document.getElementById('helpModal').classList.toggle('active');
 
-        let aidanMuted = false;
         window.toggleMute = () => {
-            aidanMuted = !aidanMuted;
+            audioManager.muted = !audioManager.muted;
             const btn = document.getElementById('muteBtn');
-            btn.innerHTML = aidanMuted ? '🔇 OFF' : '🗣️ ON';
-            btn.style.background = aidanMuted ? '#888' : 'var(--accent-gold)';
-            btn.style.color = aidanMuted ? '#fff' : 'var(--primary-navy)';
+            btn.innerHTML = audioManager.muted ? '🔇 OFF' : '🗣️ ON';
+            btn.style.background = audioManager.muted ? '#888' : 'var(--accent-gold)';
+            btn.style.color = audioManager.muted ? '#fff' : 'var(--primary-navy)';
+            if (audioManager.muted) audioManager.stop();
         };
 
         async function speakAidan(category) {
-            if (aidanMuted) return Promise.resolve();
             return audioManager.playRandom(category);
         }
 
