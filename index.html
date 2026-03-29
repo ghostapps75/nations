@@ -234,7 +234,7 @@
             screen.innerHTML = ''; 
 
             if (userWon) {
-                speakAidan("game_over_win");
+                speakAidan("lose");
                 const winAudio = new Audio('./assets/audio/winner.mp3');
                 winAudio.play().catch(e => console.warn(e));
                 screen.innerHTML = `
@@ -255,7 +255,7 @@
                     screen.appendChild(c);
                 }
             } else {
-                speakAidan("game_over_lose");
+                speakAidan("win");
                 screen.innerHTML = `
                     <div class="game-over-stamp">PASSPORT EXPIRED</div>
                     <button class="end-btn" onclick="location.reload()">Try Again</button>
